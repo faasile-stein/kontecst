@@ -40,11 +40,16 @@ pnpm install
 
 # Copy environment variables
 cp .env.example .env
+cp apps/web/.env.example apps/web/.env
+cp apps/proxy/.env.example apps/proxy/.env
 
 # Generate encryption key
 openssl rand -hex 32
 
-# Add the key to .env file as ENCRYPTION_KEY
+# Configure .env files with:
+# - Supabase URL and keys (from your Supabase project)
+# - OpenAI API key (for embeddings and semantic search)
+# - Encryption key (generated above)
 
 # Start local development environment
 pnpm docker:up
@@ -101,14 +106,17 @@ Publish public "context packages" that users can subscribe to and query.
 
 ## Roadmap
 
-### Phase 1 - MVP ✅ (Current)
+### Phase 1 - MVP ✅
 - [x] Monorepo setup
 - [x] Database schema
 - [x] File proxy with encryption
-- [ ] Package creation & versioning
-- [ ] Basic editor
-- [ ] Vector search
-- [ ] API endpoints
+- [x] Package creation & versioning
+- [x] File upload system
+- [x] Vector search (semantic + keyword)
+- [x] API endpoints
+- [x] Authentication (email + OAuth)
+- [x] Dashboard UI
+- [x] Embeddings generation
 
 ### Phase 2 - Team & Growth
 - [ ] Rich editor with AI assistance
