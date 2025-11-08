@@ -135,7 +135,7 @@ Publish public "context packages" that users can subscribe to and query.
 - [x] Comprehensive audit logging
 - [x] Admin dashboard for enterprise features
 - [x] Advanced semantic search filters
-- [ ] SSO/SAML integration (table structure ready)
+- [x] SSO/SAML integration (SAML 2.0, OIDC, OAuth 2.0)
 
 ## Contributing
 
