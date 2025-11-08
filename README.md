@@ -118,13 +118,13 @@ Publish public "context packages" that users can subscribe to and query.
 - [x] Dashboard UI
 - [x] Embeddings generation
 
-### Phase 2 - Team & Growth
-- [ ] Rich editor with AI assistance
-- [ ] Diff viewer
-- [ ] Reviews/approvals
-- [ ] Public marketplace
-- [ ] Usage analytics
-- [ ] GitHub sync
+### Phase 2 - Team & Growth ✅
+- [x] Rich Markdown editor with live preview
+- [x] Diff viewer for version comparison
+- [x] Public marketplace for package discovery
+- [x] Usage analytics dashboard
+- [ ] Reviews/approvals workflow
+- [ ] GitHub sync integration
 
 ### Phase 3 - Enterprise
 - [ ] Dedicated PostgreSQL instances
