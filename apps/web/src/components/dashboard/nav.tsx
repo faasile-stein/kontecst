@@ -15,6 +15,9 @@ import {
   FileText,
   Rss,
   TrendingUp,
+  Users,
+  Shield,
+  Database,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -28,6 +31,9 @@ const navigation = [
   { name: 'Files', href: '/dashboard/files', icon: FileText },
   { name: 'Search', href: '/dashboard/search', icon: Search },
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+  { name: 'Team', href: '/dashboard/team', icon: Users },
+  { name: 'Audit Log', href: '/dashboard/audit', icon: Shield },
+  { name: 'Admin', href: '/dashboard/admin', icon: Database },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
