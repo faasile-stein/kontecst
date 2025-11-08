@@ -5,6 +5,10 @@
   "description": "Platform for versioned, queryable context for agents—served via API or managed vector stores",
   "scripts": {
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:start": "./scripts/dev.sh",
+    "dev:stop": "./scripts/stop.sh",
+    "dev:status": "./scripts/status.sh",
+    "setup": "./scripts/setup.sh",
     "build": "pnpm --filter \"./apps/*\" build",
     "lint": "pnpm --filter \"./apps/*\" lint",
     "type-check": "pnpm --filter \"./apps/*\" type-check",
