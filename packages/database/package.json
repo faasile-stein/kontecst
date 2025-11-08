@@ -1,0 +1,13 @@
+{
+  "name": "@kontecst/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Database schemas, migrations, and types for Kontecst",
+  "main": "index.ts",
+  "scripts": {
+    "generate-types": "supabase gen types typescript --local > types/supabase.ts"
+  },
+  "devDependencies": {
+    "supabase": "^1.142.2"
+  }
+}
