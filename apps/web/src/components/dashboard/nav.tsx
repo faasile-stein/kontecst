@@ -55,17 +55,21 @@ export function DashboardNav({ user }: NavProps) {
   }
 
   return (
-    <div className="flex w-64 flex-col bg-gray-900">
-      <div className="flex h-16 items-center justify-center border-b border-gray-800 px-4">
-        <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">K</span>
+    <div className="flex w-64 flex-col bg-white border-r border-neutral-300">
+      {/* Logo/Header */}
+      <div className="flex h-16 items-center px-6 border-b border-neutral-300">
+        <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient shadow-sm">
+            <span className="text-base font-bold text-white">K</span>
           </div>
-          <span className="text-xl font-bold text-white">Kontecst</span>
+          <span className="text-xl font-bold text-neutral-900 group-hover:text-brand transition-colors duration-120">
+            Kontecst
+          </span>
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
@@ -73,44 +77,51 @@ export function DashboardNav({ user }: NavProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                'group flex items-center rounded-md px-2 py-2 text-sm font-medium',
+                'group relative flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md',
+                'transition-all duration-120',
                 isActive
-                  ? 'bg-gray-800 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  ? 'bg-brand/5 text-brand'
+                  : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
               )}
             >
+              {/* Active indicator */}
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-brand-gradient rounded-r-full" />
+              )}
+
               <item.icon
                 className={cn(
-                  'mr-3 h-5 w-5 flex-shrink-0',
-                  isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
+                  'h-5 w-5 flex-shrink-0 transition-colors duration-120',
+                  isActive ? 'text-brand' : 'text-neutral-500 group-hover:text-neutral-700'
                 )}
                 aria-hidden="true"
               />
-              {item.name}
+              <span className="flex-1">{item.name}</span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="border-t border-gray-800 p-4">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700">
-            <span className="text-sm font-medium text-white">
+      {/* User section */}
+      <div className="border-t border-neutral-300 p-4">
+        <div className="flex items-center gap-3 mb-3 px-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient shadow-sm">
+            <span className="text-sm font-semibold text-white">
               {user.email?.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-white">
+            <p className="truncate text-sm font-semibold text-neutral-900">
               {user.user_metadata?.full_name || 'User'}
             </p>
-            <p className="truncate text-xs text-gray-400">{user.email}</p>
+            <p className="truncate text-xs text-neutral-600">{user.email}</p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center rounded-md px-2 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+          className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-colors duration-120"
         >
-          <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
+          <LogOut className="h-5 w-5 flex-shrink-0" />
           Sign out
         </button>
       </div>
