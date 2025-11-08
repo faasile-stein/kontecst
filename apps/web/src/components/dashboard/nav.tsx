@@ -20,6 +20,7 @@ import {
   Database,
   Github,
   ClipboardCheck,
+  KeyRound,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -37,6 +38,7 @@ const navigation = [
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { name: 'Team', href: '/dashboard/team', icon: Users },
   { name: 'Audit Log', href: '/dashboard/audit', icon: Shield },
+  { name: 'SSO', href: '/dashboard/sso', icon: KeyRound },
   { name: 'Admin', href: '/dashboard/admin', icon: Database },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
