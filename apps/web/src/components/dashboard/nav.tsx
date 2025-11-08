@@ -18,6 +18,8 @@ import {
   Users,
   Shield,
   Database,
+  Github,
+  ClipboardCheck,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -30,6 +32,8 @@ const navigation = [
   { name: 'Packages', href: '/dashboard/packages', icon: Package },
   { name: 'Files', href: '/dashboard/files', icon: FileText },
   { name: 'Search', href: '/dashboard/search', icon: Search },
+  { name: 'GitHub', href: '/dashboard/github', icon: Github },
+  { name: 'Reviews', href: '/dashboard/reviews', icon: ClipboardCheck },
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { name: 'Team', href: '/dashboard/team', icon: Users },
   { name: 'Audit Log', href: '/dashboard/audit', icon: Shield },
