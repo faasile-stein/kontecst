@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   FileText,
   Rss,
+  TrendingUp,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -26,7 +27,7 @@ const navigation = [
   { name: 'Packages', href: '/dashboard/packages', icon: Package },
   { name: 'Files', href: '/dashboard/files', icon: FileText },
   { name: 'Search', href: '/dashboard/search', icon: Search },
-  { name: 'Feeds', href: '/dashboard/feeds', icon: Rss },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
