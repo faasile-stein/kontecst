@@ -123,8 +123,8 @@ Publish public "context packages" that users can subscribe to and query.
 - [x] Diff viewer for version comparison
 - [x] Public marketplace for package discovery
 - [x] Usage analytics dashboard
-- [ ] Reviews/approvals workflow
-- [ ] GitHub sync integration
+- [x] Reviews/approvals workflow
+- [x] GitHub sync integration
 
 ### Phase 3 - Enterprise ✅
 - [x] Team management with role-based permissions
@@ -134,8 +134,8 @@ Publish public "context packages" that users can subscribe to and query.
 - [x] Region selection for data residency
 - [x] Comprehensive audit logging
 - [x] Admin dashboard for enterprise features
-- [ ] SSO/SAML (table structure ready)
-- [ ] Advanced semantic search filters
+- [x] Advanced semantic search filters
+- [ ] SSO/SAML integration (table structure ready)
 
 ## Contributing
 
