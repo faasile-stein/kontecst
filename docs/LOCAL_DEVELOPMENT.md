@@ -8,7 +8,38 @@ This guide will help you set up Kontecst for local development with Supabase.
 - pnpm >= 8.0.0
 - Docker Desktop (required for Supabase)
 
-## Quick Start
+## 🚀 Automated Setup (Recommended)
+
+The fastest way to get started:
+
+```bash
+# One command to set up everything!
+./scripts/setup-local.sh
+```
+
+This script will:
+- ✅ Check all prerequisites (Docker, pnpm, Supabase CLI)
+- ✅ Install dependencies if needed
+- ✅ Start Supabase and wait for it to be ready
+- ✅ Extract credentials automatically
+- ✅ Create and configure all `.env` files
+- ✅ Optionally start development servers
+
+**That's it!** Your environment is ready. Visit http://localhost:3000
+
+### Other Helpful Scripts
+
+```bash
+# Stop all local services
+./scripts/stop-local.sh
+
+# Reset database (with automatic backup)
+./scripts/reset-local.sh
+```
+
+## 📖 Manual Setup
+
+If you prefer to set things up manually or want more control:
 
 ### 1. Install Dependencies
 

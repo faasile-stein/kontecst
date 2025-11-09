@@ -61,3 +61,4 @@ keys/
 
 # Supabase
 .supabase/
+supabase/backups/*.sql

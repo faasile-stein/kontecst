@@ -25,12 +25,37 @@ Kontecst lets developers and teams curate structured `.md` files, version them, 
 
 - Node.js 18+
 - pnpm 8+
-- Docker & Docker Compose
-- Supabase account
+- Docker Desktop (for local Supabase)
 
 ### Installation
 
-**Option 1: Automated Setup (Recommended)**
+**Option 1: Local Development with Supabase (Recommended)**
+
+Perfect for trying out Kontecst or local development:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/kontecst.git
+cd kontecst
+
+# Run automated local setup (installs CLI, starts Supabase, configures everything!)
+./scripts/setup-local.sh
+```
+
+This script automatically:
+- ✅ Installs Supabase CLI if needed
+- ✅ Starts local Supabase (Postgres, Auth, Storage, etc.)
+- ✅ Extracts and configures credentials
+- ✅ Creates all `.env` files
+- ✅ Optionally starts dev servers
+
+Visit http://localhost:3000 to see the app!
+
+See [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md) for detailed instructions.
+
+**Option 2: Production Setup with Supabase Cloud**
+
+For production or cloud-based development:
 
 ```bash
 # Clone the repository
@@ -49,7 +74,9 @@ pnpm setup
 pnpm dev:start
 ```
 
-**Option 2: Manual Setup**
+**Option 3: Manual Setup**
+
+For full control over the setup process:
 
 ```bash
 # Clone the repository
@@ -70,7 +97,7 @@ openssl rand -hex 32
 # Configure .env files with credentials
 # ...
 
-# Start Docker services
+# Start Docker services (if not using local Supabase)
 pnpm docker:up
 
 # Start development servers
