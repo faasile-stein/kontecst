@@ -15,7 +15,11 @@ export async function requestLogger(
 ): Promise<void> {
   const startTime = Date.now()
 
-  reply.addHook('onSend', async (request, reply) => {
+  // Store start time on request object for later use
+  ;(request as any).startTime = startTime
+
+  // Use reply's onSend hook to log after response is sent
+  reply.raw.on('finish', () => {
     const duration = Date.now() - startTime
 
     // Log to stdout
@@ -38,7 +42,7 @@ export async function requestLogger(
         ip: request.ip,
         userAgent: request.headers['user-agent'] || null,
         userId: (request as any).userId || null,
-      }).catch((error) => {
+      }).catch((error: Error) => {
         request.log.error({ error }, 'Failed to store access log')
       })
     }

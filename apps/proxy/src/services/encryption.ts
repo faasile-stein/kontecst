@@ -18,7 +18,7 @@ export interface EncryptedData {
  */
 export function encrypt(data: string): EncryptedData {
   const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv)
+  const cipher = crypto.createCipheriv(ALGORITHM, KEY, iv) as crypto.CipherGCM
 
   let encrypted = cipher.update(data, 'utf8', 'hex')
   encrypted += cipher.final('hex')
@@ -40,7 +40,7 @@ export function decrypt(encryptedData: EncryptedData): string {
     ALGORITHM,
     KEY,
     Buffer.from(encryptedData.iv, 'hex')
-  )
+  ) as crypto.DecipherGCM
 
   decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'))
 
