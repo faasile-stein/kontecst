@@ -2,20 +2,21 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
+# Copy workspace configuration
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy proxy app package.json
 COPY apps/proxy/package.json ./apps/proxy/
 
 # Install pnpm and dependencies
 RUN npm install -g pnpm@8.15.0
 RUN pnpm install --frozen-lockfile
 
-# Copy source files
+# Copy proxy app source files
 COPY apps/proxy ./apps/proxy
 
-# Build the application
-WORKDIR /app/apps/proxy
-RUN pnpm build
+# Build the application using workspace filter
+RUN pnpm --filter @kontecst/proxy build
 
 # Production stage
 FROM node:18-alpine
