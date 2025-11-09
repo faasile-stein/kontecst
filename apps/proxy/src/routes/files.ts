@@ -21,12 +21,13 @@ export async function fileRoutes(fastify: FastifyInstance) {
   }>(
     '/files/:packageId/:version/:filename',
     {
-      preHandler: async (request: AuthenticatedRequest, reply) => {
-        await verifyAuth(request, reply)
+      preHandler: async (request, reply) => {
+        await verifyAuth(request as AuthenticatedRequest, reply)
       },
     },
-    async (request: AuthenticatedRequest, reply) => {
-      const params = FileParamsSchema.parse(request.params)
+    async (request, reply) => {
+      const authRequest = request as AuthenticatedRequest
+      const params = FileParamsSchema.parse(authRequest.params)
 
       const result = await retrieveFile(
         params.packageId,
@@ -40,7 +41,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
 
       // Check access permissions
       const hasAccess = await checkPackageAccess(
-        request.userId,
+        authRequest.userId,
         params.packageId,
         result.metadata.isPublic
       )
@@ -63,12 +64,13 @@ export async function fileRoutes(fastify: FastifyInstance) {
   }>(
     '/files/:packageId/:version',
     {
-      preHandler: async (request: AuthenticatedRequest, reply) => {
-        await verifyAuth(request, reply)
+      preHandler: async (request, reply) => {
+        await verifyAuth(request as AuthenticatedRequest, reply)
       },
     },
-    async (request: AuthenticatedRequest, reply) => {
-      const params = ListParamsSchema.parse(request.params)
+    async (request, reply) => {
+      const authRequest = request as AuthenticatedRequest
+      const params = ListParamsSchema.parse(authRequest.params)
 
       const files = await listFiles(params.packageId, params.version)
 
@@ -76,7 +78,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
       const accessibleFiles = []
       for (const file of files) {
         const hasAccess = await checkPackageAccess(
-          request.userId,
+          authRequest.userId,
           params.packageId,
           file.isPublic
         )
@@ -95,12 +97,13 @@ export async function fileRoutes(fastify: FastifyInstance) {
   }>(
     '/files/:packageId/:version/:filename',
     {
-      preHandler: async (request: AuthenticatedRequest, reply) => {
-        await verifyAuth(request, reply)
+      preHandler: async (request, reply) => {
+        await verifyAuth(request as AuthenticatedRequest, reply)
       },
     },
-    async (request: AuthenticatedRequest, reply) => {
-      const params = FileParamsSchema.parse(request.params)
+    async (request, reply) => {
+      const authRequest = request as AuthenticatedRequest
+      const params = FileParamsSchema.parse(authRequest.params)
 
       const result = await retrieveFile(
         params.packageId,
@@ -113,7 +116,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
       }
 
       const hasAccess = await checkPackageAccess(
-        request.userId,
+        authRequest.userId,
         params.packageId,
         result.metadata.isPublic
       )
