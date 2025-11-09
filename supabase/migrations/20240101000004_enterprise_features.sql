@@ -102,13 +102,18 @@ $$;
 CREATE TYPE organization_role AS ENUM ('owner', 'admin', 'member', 'viewer');
 
 -- Update organization_members table to use enum
+-- First drop the default to avoid casting issues
+ALTER TABLE organization_members
+  ALTER COLUMN role DROP DEFAULT;
+
+-- Then change the column type
 ALTER TABLE organization_members
   ALTER COLUMN role TYPE organization_role
   USING role::organization_role;
 
--- Add default role
+-- Finally set the new default with proper enum type
 ALTER TABLE organization_members
-  ALTER COLUMN role SET DEFAULT 'member';
+  ALTER COLUMN role SET DEFAULT 'member'::organization_role;
 
 -- Team invitations
 CREATE TABLE organization_invitations (
