@@ -23,13 +23,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY --from=builder /app/apps/proxy/package.json ./
-COPY --from=builder /app/apps/proxy/dist ./dist
+# Copy workspace configuration and lockfile
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 
-# Install production dependencies only
+# Copy proxy app files
+COPY --from=builder /app/apps/proxy/package.json ./apps/proxy/
+COPY --from=builder /app/apps/proxy/dist ./apps/proxy/dist
+
+# Install pnpm and production dependencies only
 RUN npm install -g pnpm@8.15.0
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --filter @kontecst/proxy
 
 # Create data directory
 RUN mkdir -p /data/files
@@ -39,4 +42,4 @@ USER node
 
 EXPOSE 3001
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "apps/proxy/dist/index.js"]
