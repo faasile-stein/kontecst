@@ -101,6 +101,9 @@ $$;
 -- Team roles and permissions
 CREATE TYPE organization_role AS ENUM ('owner', 'admin', 'member', 'viewer');
 
+-- Drop RLS policies that depend on the role column before altering it
+DROP POLICY IF EXISTS "Organization owners can update their organization" ON organizations;
+
 -- Update organization_members table to use enum
 -- First drop the default to avoid casting issues
 ALTER TABLE organization_members
@@ -114,6 +117,16 @@ ALTER TABLE organization_members
 -- Finally set the new default with proper enum type
 ALTER TABLE organization_members
   ALTER COLUMN role SET DEFAULT 'member'::organization_role;
+
+-- Recreate the dropped RLS policy with the enum type
+CREATE POLICY "Organization owners can update their organization"
+  ON organizations FOR UPDATE
+  USING (
+    id IN (
+      SELECT organization_id FROM organization_members
+      WHERE user_id = auth.uid() AND role = 'owner'
+    )
+  );
 
 -- Team invitations
 CREATE TABLE organization_invitations (
