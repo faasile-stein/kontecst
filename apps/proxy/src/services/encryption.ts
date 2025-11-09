@@ -1,10 +1,38 @@
 import crypto from 'crypto'
 
 const ALGORITHM = process.env.ENCRYPTION_ALGORITHM || 'aes-256-gcm'
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY || '', 'hex')
+
+// Development fallback key (DO NOT use in production!)
+const DEV_KEY = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+
+const encryptionKeyEnv = process.env.ENCRYPTION_KEY || ''
+const KEY = Buffer.from(encryptionKeyEnv || DEV_KEY, 'hex')
 
 if (KEY.length !== 32) {
-  throw new Error('ENCRYPTION_KEY must be 32 bytes (64 hex characters)')
+  const actualLength = KEY.length
+  const expectedHexChars = 64
+  const actualHexChars = encryptionKeyEnv.length
+
+  throw new Error(
+    `ENCRYPTION_KEY must be 32 bytes (64 hex characters).\n` +
+    `Current key is ${actualLength} bytes (${actualHexChars} hex characters).\n` +
+    `Generate a valid key with: openssl rand -hex 32`
+  )
+}
+
+// Warn if using the development key
+if (encryptionKeyEnv === DEV_KEY || !encryptionKeyEnv) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'ENCRYPTION_KEY not set! Using default development key in production is not allowed.\n' +
+      'Generate a secure key with: openssl rand -hex 32'
+    )
+  }
+  console.warn(
+    '⚠️  WARNING: Using default development encryption key. ' +
+    'This is OK for development but NEVER use in production!\n' +
+    'Generate a secure key with: openssl rand -hex 32'
+  )
 }
 
 export interface EncryptedData {
