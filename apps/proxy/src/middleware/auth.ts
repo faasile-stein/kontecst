@@ -1,10 +1,23 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-)
+// Validate required environment variables
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+
+if (!supabaseUrl) {
+  throw new Error(
+    'SUPABASE_URL environment variable is required. Please set it in your .env file.'
+  )
+}
+
+if (!supabaseServiceKey) {
+  throw new Error(
+    'SUPABASE_SERVICE_KEY environment variable is required. Please set it in your .env file.'
+  )
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 export interface AuthenticatedRequest extends FastifyRequest {
   userId?: string
