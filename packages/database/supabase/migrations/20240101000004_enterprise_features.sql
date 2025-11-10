@@ -166,11 +166,26 @@ CREATE TYPE database_region AS ENUM (
 CREATE TYPE database_instance_type AS ENUM ('small', 'medium', 'large', 'xlarge');
 
 -- Update dedicated_databases columns to use enums
+-- First drop the defaults to avoid casting issues
+ALTER TABLE dedicated_databases
+  ALTER COLUMN region DROP DEFAULT;
+
+ALTER TABLE dedicated_databases
+  ALTER COLUMN instance_type DROP DEFAULT;
+
+-- Then change the column types
 ALTER TABLE dedicated_databases
   ALTER COLUMN region TYPE database_region USING region::database_region;
 
 ALTER TABLE dedicated_databases
   ALTER COLUMN instance_type TYPE database_instance_type USING instance_type::database_instance_type;
+
+-- Finally set the new defaults with proper enum types
+ALTER TABLE dedicated_databases
+  ALTER COLUMN region SET DEFAULT 'us-east-1'::database_region;
+
+ALTER TABLE dedicated_databases
+  ALTER COLUMN instance_type SET DEFAULT 'small'::database_instance_type;
 
 -- SSO configuration
 CREATE TABLE sso_connections (

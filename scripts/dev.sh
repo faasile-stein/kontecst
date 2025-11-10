@@ -217,6 +217,23 @@ run_migrations() {
     echo ""
 }
 
+# Display test credentials
+display_test_credentials() {
+    print_header "Test User Credentials"
+
+    echo -e "${GREEN}Test User:${NC}"
+    echo -e "  Email:    ${YELLOW}test@kontecst.dev${NC}"
+    echo -e "  Password: ${YELLOW}testuser123${NC}"
+    echo ""
+    echo -e "${GREEN}Admin User:${NC}"
+    echo -e "  Email:    ${YELLOW}admin@kontecst.dev${NC}"
+    echo -e "  Password: ${YELLOW}adminuser123${NC}"
+    echo ""
+    print_warning "These are test credentials for local development only!"
+
+    echo ""
+}
+
 # Start development servers
 start_dev_servers() {
     print_header "Starting Development Servers"
@@ -260,6 +277,7 @@ main() {
     start_docker
     wait_for_postgres
     run_migrations
+    display_test_credentials
     start_dev_servers
 }
 
