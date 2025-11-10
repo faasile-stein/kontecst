@@ -51,6 +51,34 @@ pnpm dev:start
 
 **Option 2: Manual Setup**
 
+For **local development with local Supabase**:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/kontecst.git
+cd kontecst
+
+# Install dependencies
+pnpm install
+
+# Start local Supabase
+supabase start
+
+# Copy environment variables (use .env.local.example for local Supabase)
+cp .env.local.example .env
+cp .env.local.example apps/web/.env
+cp apps/proxy/.env.example apps/proxy/.env
+
+# Update apps/proxy/.env with local Supabase credentials:
+# SUPABASE_URL=http://127.0.0.1:54321
+# SUPABASE_SERVICE_KEY=(copy from supabase start output)
+
+# Start development servers
+pnpm dev
+```
+
+For **development with cloud Supabase**:
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-org/kontecst.git
@@ -67,10 +95,10 @@ cp apps/proxy/.env.example apps/proxy/.env
 # Generate encryption key
 openssl rand -hex 32
 
-# Configure .env files with credentials
-# ...
+# Configure .env files with credentials from your Supabase project
+# Get credentials from: https://app.supabase.com/project/_/settings/api
 
-# Start Docker services
+# Start Docker services (if needed)
 pnpm docker:up
 
 # Start development servers
