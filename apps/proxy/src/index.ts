@@ -1,12 +1,16 @@
+// Load environment variables FIRST, before any other imports
+import dotenv from 'dotenv'
+import path from 'path'
+
+// Load .env from monorepo root (two levels up from src directory)
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
+
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
-import dotenv from 'dotenv'
 import { fileRoutes } from './routes/files'
 import { requestLogger } from './middleware/logging'
-
-dotenv.config()
 
 const PORT = parseInt(process.env.PORT || '3001', 10)
 const NODE_ENV = process.env.NODE_ENV || 'development'
