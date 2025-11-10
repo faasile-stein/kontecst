@@ -96,18 +96,16 @@ INSERT INTO profiles (id, email, full_name, organization) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Create test organizations
-INSERT INTO organizations (id, name, slug, owner_id) VALUES
+INSERT INTO organizations (id, name, slug) VALUES
   (
     '10000000-0000-0000-0000-000000000001',
     'Test Organization',
-    'test-org',
-    '00000000-0000-0000-0000-000000000001'
+    'test-org'
   ),
   (
     '10000000-0000-0000-0000-000000000002',
     'Admin Organization',
-    'admin-org',
-    '00000000-0000-0000-0000-000000000002'
+    'admin-org'
   )
 ON CONFLICT (id) DO NOTHING;
 
