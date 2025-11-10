@@ -1,12 +1,14 @@
+// Load environment variables FIRST before any other imports
+import dotenv from 'dotenv'
+dotenv.config()
+
+// Now import everything else
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
-import dotenv from 'dotenv'
 import { fileRoutes } from './routes/files'
 import { requestLogger } from './middleware/logging'
-
-dotenv.config()
 
 const PORT = parseInt(process.env.PORT || '3001', 10)
 const NODE_ENV = process.env.NODE_ENV || 'development'
