@@ -54,6 +54,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO auth.identities (
   id,
   user_id,
+  provider_id,
   identity_data,
   provider,
   last_sign_in_at,
@@ -61,6 +62,7 @@ INSERT INTO auth.identities (
   updated_at
 )
 SELECT
+  '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000001',
   '{"sub":"00000000-0000-0000-0000-000000000001","email":"test@kontecst.dev"}'::jsonb,
@@ -69,12 +71,13 @@ SELECT
   NOW(),
   NOW()
 WHERE NOT EXISTS (
-  SELECT 1 FROM auth.identities WHERE id = '00000000-0000-0000-0000-000000000001' AND provider = 'email'
+  SELECT 1 FROM auth.identities WHERE user_id = '00000000-0000-0000-0000-000000000001' AND provider = 'email'
 );
 
 INSERT INTO auth.identities (
   id,
   user_id,
+  provider_id,
   identity_data,
   provider,
   last_sign_in_at,
@@ -84,13 +87,14 @@ INSERT INTO auth.identities (
 SELECT
   '00000000-0000-0000-0000-000000000002',
   '00000000-0000-0000-0000-000000000002',
+  '00000000-0000-0000-0000-000000000002',
   '{"sub":"00000000-0000-0000-0000-000000000002","email":"admin@kontecst.dev"}'::jsonb,
   'email',
   NOW(),
   NOW(),
   NOW()
 WHERE NOT EXISTS (
-  SELECT 1 FROM auth.identities WHERE id = '00000000-0000-0000-0000-000000000002' AND provider = 'email'
+  SELECT 1 FROM auth.identities WHERE user_id = '00000000-0000-0000-0000-000000000002' AND provider = 'email'
 );
 
 -- Create profiles for test users
