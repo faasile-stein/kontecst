@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FilePlus } from 'lucide-react'
 import { FileUpload } from '@/components/upload/file-upload'
 import { Button } from '@/components/ui/button'
 
@@ -73,10 +73,20 @@ export default function UploadPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900">Upload Files</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Upload Markdown files to {packageData.name}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Upload Files</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              Upload Markdown files to {packageData.name}
+            </p>
+          </div>
+          <Link href={`/dashboard/packages/${params.id}/files/new`}>
+            <Button variant="outline">
+              <FilePlus className="mr-2 h-4 w-4" />
+              Create New File
+            </Button>
+          </Link>
+        </div>
 
         <div className="mt-6 space-y-6">
           {versions.length === 0 ? (
