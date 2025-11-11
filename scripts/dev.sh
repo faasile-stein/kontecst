@@ -81,6 +81,16 @@ check_prerequisites() {
         all_good=false
     fi
 
+    # Check Supabase CLI
+    if command_exists supabase; then
+        SUPABASE_VERSION=$(supabase --version | cut -d ' ' -f1)
+        print_success "Supabase CLI $SUPABASE_VERSION installed"
+    else
+        print_error "Supabase CLI is not installed. Install it with: brew install supabase/tap/supabase"
+        print_info "Or visit: https://supabase.com/docs/guides/cli/getting-started"
+        all_good=false
+    fi
+
     if [ "$all_good" = false ]; then
         print_error "Please install missing prerequisites before continuing."
         exit 1
@@ -179,6 +189,34 @@ start_docker() {
     echo ""
 }
 
+# Start Supabase local instance
+start_supabase() {
+    print_header "Starting Supabase"
+
+    # Check if Supabase is already running
+    if supabase status >/dev/null 2>&1; then
+        print_warning "Supabase is already running"
+        print_info "Stopping existing instance..."
+        supabase stop
+    fi
+
+    print_info "Starting Supabase local instance..."
+
+    # Start Supabase (this will pull Docker images if needed and apply migrations)
+    if supabase start; then
+        print_success "Supabase started successfully"
+        echo ""
+        print_info "Supabase Studio: http://127.0.0.1:54323"
+        print_info "Supabase API: http://127.0.0.1:54321"
+        print_info "Supabase DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+        echo ""
+    else
+        print_error "Failed to start Supabase"
+        print_info "Check Supabase logs with: supabase status"
+        exit 1
+    fi
+}
+
 # Wait for PostgreSQL to be ready
 wait_for_postgres() {
     print_header "Waiting for PostgreSQL"
@@ -210,9 +248,9 @@ wait_for_postgres() {
 run_migrations() {
     print_header "Database Migrations"
 
-    print_info "Migrations should be run through your Supabase project dashboard"
-    print_info "Migration files are located in: packages/database/supabase/migrations/"
-    print_warning "Make sure to run all migrations before using the application"
+    print_success "Supabase migrations applied automatically on startup"
+    print_info "Migration files are located in: supabase/migrations/"
+    print_info "To add new migrations, use: supabase migration new <migration_name>"
 
     echo ""
 }
@@ -239,9 +277,14 @@ start_dev_servers() {
     print_header "Starting Development Servers"
 
     print_info "Starting Next.js web app and Fastify proxy service..."
-    print_info "Web app will be available at: http://localhost:3000"
-    print_info "File proxy will be available at: http://localhost:3001"
-    print_info "PostgreSQL will be available at: localhost:5432"
+    echo ""
+    print_success "Services:"
+    print_info "  Web app:         http://localhost:3000"
+    print_info "  File proxy:      http://localhost:3001"
+    print_info "  Supabase Studio: http://127.0.0.1:54323"
+    print_info "  Supabase API:    http://127.0.0.1:54321"
+    print_info "  PostgreSQL:      localhost:5432"
+    print_info "  Supabase DB:     localhost:54322"
     echo ""
     print_info "Press Ctrl+C to stop all services"
     echo ""
@@ -256,6 +299,7 @@ cleanup() {
     print_header "Shutting Down"
 
     print_info "Stopping development servers..."
+    print_warning "Supabase is still running. Stop it with: supabase stop"
     print_warning "Docker services are still running. Stop them with: pnpm docker:down"
 
     exit 0
@@ -274,6 +318,7 @@ main() {
     check_prerequisites
     install_dependencies
     setup_env_files
+    start_supabase
     start_docker
     wait_for_postgres
     run_migrations
