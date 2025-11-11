@@ -71,24 +71,65 @@ export default function EditPackagePage({ params }: { params: { id: string } }) 
 
   const handleFileSelect = async (file: FileItem) => {
     setSelectedFile({ ...file, content: '' })
-    // In production, fetch actual file content from storage
-    // For now, using placeholder content
-    setTimeout(() => {
+    try {
+      const response = await fetch(`/api/files/${file.id}`)
+      if (!response.ok) throw new Error('Failed to fetch file content')
+
+      const data = await response.json()
+      setSelectedFile({
+        ...file,
+        content: data.content || `# ${file.filename}\n\nEdit your markdown content here...`,
+      })
+    } catch (err: any) {
+      console.error('Error fetching file content:', err)
       setSelectedFile({
         ...file,
         content: `# ${file.filename}\n\nEdit your markdown content here...`,
       })
-    }, 300)
+    }
   }
 
   const handleSaveFile = async (content: string) => {
     if (!selectedFile) return
 
-    // In production, save to storage and update database
-    console.log('Saving file:', selectedFile.filename, content)
+    try {
+      // For new files (not yet saved to database)
+      if (selectedFile.id.startsWith('new-')) {
+        // Create new file via upload API
+        const blob = new Blob([content], { type: 'text/markdown' })
+        const file = new File([blob], selectedFile.filename, { type: 'text/markdown' })
 
-    // Simulate save
-    await new Promise((resolve) => setTimeout(resolve, 500))
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('packageVersionId', selectedVersion)
+        formData.append('path', selectedFile.path)
+
+        const response = await fetch('/api/files', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!response.ok) throw new Error('Failed to create file')
+
+        const newFile = await response.json()
+
+        // Update the file in the list with the real ID
+        setFiles(files.map(f => f.id === selectedFile.id ? { ...f, id: newFile.id } : f))
+        setSelectedFile({ ...selectedFile, id: newFile.id, content })
+      } else {
+        // Update existing file
+        const response = await fetch(`/api/files/${selectedFile.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        })
+
+        if (!response.ok) throw new Error('Failed to save file')
+      }
+    } catch (err: any) {
+      console.error('Error saving file:', err)
+      throw err
+    }
   }
 
   const handleNewFile = () => {
