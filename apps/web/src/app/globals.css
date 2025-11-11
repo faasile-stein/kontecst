@@ -171,3 +171,81 @@
 .dark .btn-secondary {
   @apply border-neutral-700 text-neutral-200 hover:bg-neutral-800;
 }
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  @apply min-h-full focus:outline-none;
+}
+
+.ProseMirror p {
+  @apply mb-3;
+}
+
+.ProseMirror h1 {
+  @apply text-3xl font-bold mb-4 mt-6;
+}
+
+.ProseMirror h2 {
+  @apply text-2xl font-bold mb-3 mt-5;
+}
+
+.ProseMirror h3 {
+  @apply text-xl font-bold mb-2 mt-4;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  @apply pl-6 mb-3;
+}
+
+.ProseMirror ul {
+  @apply list-disc;
+}
+
+.ProseMirror ol {
+  @apply list-decimal;
+}
+
+.ProseMirror li {
+  @apply mb-1;
+}
+
+.ProseMirror code {
+  @apply bg-gray-100 rounded px-1.5 py-0.5 font-mono text-sm;
+}
+
+.ProseMirror pre {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 mb-3 overflow-x-auto;
+}
+
+.ProseMirror pre code {
+  @apply bg-transparent text-gray-100 p-0;
+}
+
+.ProseMirror blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-700 mb-3;
+}
+
+.ProseMirror hr {
+  @apply border-t-2 border-gray-300 my-6;
+}
+
+.ProseMirror a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+.ProseMirror strong {
+  @apply font-bold;
+}
+
+.ProseMirror em {
+  @apply italic;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
