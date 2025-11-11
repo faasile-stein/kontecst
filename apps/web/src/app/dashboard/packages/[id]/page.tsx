@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, Upload, Plus } from 'lucide-react'
+import { ArrowLeft, FileText, Upload, Plus, FilePlus } from 'lucide-react'
 
 export default async function PackageDetailPage({
   params,
@@ -71,6 +71,12 @@ export default async function PackageDetailPage({
             </div>
           </div>
           <div className="flex space-x-2">
+            <Link href={`/dashboard/packages/${pkg.id}/files/new`}>
+              <Button>
+                <FilePlus className="mr-2 h-4 w-4" />
+                Create File
+              </Button>
+            </Link>
             <Link href={`/dashboard/packages/${pkg.id}/upload`}>
               <Button variant="outline">
                 <Upload className="mr-2 h-4 w-4" />
