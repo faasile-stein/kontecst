@@ -1,3 +1,31 @@
+-- Helper function to get user's organization IDs (bypasses RLS)
+CREATE OR REPLACE FUNCTION get_user_organization_ids(user_uuid uuid)
+RETURNS TABLE (organization_id uuid)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT om.organization_id
+  FROM organization_members om
+  WHERE om.user_id = user_uuid;
+END;
+$$;
+
+-- Helper function to get user's owned organization IDs (bypasses RLS)
+CREATE OR REPLACE FUNCTION get_user_owned_organization_ids(user_uuid uuid)
+RETURNS TABLE (organization_id uuid)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT om.organization_id
+  FROM organization_members om
+  WHERE om.user_id = user_uuid AND om.role = 'owner';
+END;
+$$;
+
 -- Helper function to increment package version stats
 CREATE OR REPLACE FUNCTION increment_version_stats(
   version_id uuid,

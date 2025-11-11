@@ -27,29 +27,21 @@ CREATE POLICY "Users can update their own profile"
 CREATE POLICY "Users can view organizations they are members of"
   ON organizations FOR SELECT
   USING (
-    id IN (
-      SELECT organization_id FROM organization_members
-      WHERE user_id = auth.uid()
-    )
+    id IN (SELECT get_user_organization_ids(auth.uid()))
   );
 
 CREATE POLICY "Organization owners can update their organization"
   ON organizations FOR UPDATE
   USING (
-    id IN (
-      SELECT organization_id FROM organization_members
-      WHERE user_id = auth.uid() AND role = 'owner'
-    )
+    id IN (SELECT get_user_owned_organization_ids(auth.uid()))
   );
 
 -- Organization members policies
 CREATE POLICY "Users can view members of their organizations"
   ON organization_members FOR SELECT
   USING (
-    organization_id IN (
-      SELECT organization_id FROM organization_members
-      WHERE user_id = auth.uid()
-    )
+    user_id = auth.uid() OR
+    organization_id IN (SELECT get_user_organization_ids(auth.uid()))
   );
 
 -- Packages policies
@@ -73,10 +65,7 @@ CREATE POLICY "Users can view packages they have access to"
 CREATE POLICY "Users can view packages in their organization"
   ON packages FOR SELECT
   USING (
-    organization_id IN (
-      SELECT organization_id FROM organization_members
-      WHERE user_id = auth.uid()
-    )
+    organization_id IN (SELECT get_user_organization_ids(auth.uid()))
   );
 
 CREATE POLICY "Users can create packages"
