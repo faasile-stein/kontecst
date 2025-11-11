@@ -139,6 +139,20 @@ BEGIN
     NEW.raw_user_meta_data->>'avatar_url'
   );
   RETURN NEW;
+EXCEPTION
+  WHEN unique_violation THEN
+    -- Profile already exists, just update it
+    UPDATE profiles
+    SET email = NEW.email,
+        full_name = NEW.raw_user_meta_data->>'full_name',
+        avatar_url = NEW.raw_user_meta_data->>'avatar_url',
+        updated_at = NOW()
+    WHERE id = NEW.id;
+    RETURN NEW;
+  WHEN OTHERS THEN
+    -- Log error but don't fail user creation
+    RAISE WARNING 'Error creating profile for user %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$;
 

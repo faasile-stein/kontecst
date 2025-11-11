@@ -11,6 +11,7 @@
 INSERT INTO auth.users (
   id,
   instance_id,
+  aud,
   email,
   encrypted_password,
   email_confirmed_at,
@@ -24,6 +25,7 @@ INSERT INTO auth.users (
   (
     '00000000-0000-0000-0000-000000000001',
     '00000000-0000-0000-0000-000000000000',
+    'authenticated',
     'test@kontecst.dev',
     '$2a$10$TKh8H1.PfQx37YgCzwiKb.KjNyLngTA7ub1sDmY5YvPZu8wKJC0bq', -- testuser123
     NOW(),
@@ -37,6 +39,7 @@ INSERT INTO auth.users (
   (
     '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000000',
+    'authenticated',
     'admin@kontecst.dev',
     '$2a$10$TKh8H1.PfQx37YgCzwiKb.KjNyLngTA7ub1sDmY5YvPZu8wKJC0bq', -- adminuser123
     NOW(),
@@ -97,21 +100,9 @@ WHERE NOT EXISTS (
   SELECT 1 FROM auth.identities WHERE user_id = '00000000-0000-0000-0000-000000000002' AND provider = 'email'
 );
 
--- Create profiles for test users
-INSERT INTO profiles (id, email, full_name, organization) VALUES
-  (
-    '00000000-0000-0000-0000-000000000001',
-    'test@kontecst.dev',
-    'Test User',
-    'Test Organization'
-  ),
-  (
-    '00000000-0000-0000-0000-000000000002',
-    'admin@kontecst.dev',
-    'Admin User',
-    'Admin Organization'
-  )
-ON CONFLICT (id) DO NOTHING;
+-- Update profiles for test users (created automatically by trigger, just update organization field)
+UPDATE profiles SET organization = 'Test Organization' WHERE id = '00000000-0000-0000-0000-000000000001';
+UPDATE profiles SET organization = 'Admin Organization' WHERE id = '00000000-0000-0000-0000-000000000002';
 
 -- Create test organizations
 INSERT INTO organizations (id, name, slug) VALUES
