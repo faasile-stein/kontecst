@@ -1,6 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
+import { Editor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { createMarkdownEditor } from 'tiptap-markdown'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Eye, Code, Save, Sparkles } from 'lucide-react'
@@ -23,17 +26,40 @@ export function MarkdownEditor({
   const [aiAssisting, setAiAssisting] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
 
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent)
-    setHasChanges(newContent !== initialContent)
-  }
+  // Create the MarkdownEditor class once
+  const MarkdownEditorClass = useMemo(() => createMarkdownEditor(Editor), [])
+
+  const editor = useMemo(() => {
+    const editorInstance = new MarkdownEditorClass({
+      extensions: [StarterKit],
+      content: initialContent,
+      editorProps: {
+        attributes: {
+          class: 'prose prose-sm max-w-none p-4 focus:outline-none h-full overflow-auto',
+        },
+      },
+      onUpdate: ({ editor }) => {
+        const markdown = (editor as any).getMarkdown()
+        setContent(markdown)
+        setHasChanges(markdown !== initialContent)
+      },
+    })
+    return editorInstance
+  }, [MarkdownEditorClass, initialContent])
+
+  useEffect(() => {
+    return () => {
+      editor?.destroy()
+    }
+  }, [editor])
 
   const handleSave = async () => {
-    if (!onSave) return
+    if (!onSave || !editor) return
 
     setSaving(true)
     try {
-      await onSave(content)
+      const markdown = (editor as any).getMarkdown()
+      await onSave(markdown)
       setHasChanges(false)
     } catch (error) {
       console.error('Save failed:', error)
@@ -43,14 +69,17 @@ export function MarkdownEditor({
   }
 
   const handleAiAssist = async () => {
+    if (!editor) return
+
     setAiAssisting(true)
     try {
       // Placeholder for AI assistance
       // In production, this would call an API to improve the content
       await new Promise((resolve) => setTimeout(resolve, 1000))
       // For now, just add a helpful comment
-      setContent(
-        content +
+      const currentContent = (editor as any).getMarkdown()
+      editor.commands.setContent(
+        currentContent +
           '\n\n<!-- AI Assistant: Consider adding more detailed examples or explanations -->'
       )
     } finally {
@@ -58,32 +87,16 @@ export function MarkdownEditor({
     }
   }
 
-  const insertMarkdown = useCallback((before: string, after: string = '') => {
-    const textarea = document.querySelector('textarea') as HTMLTextAreaElement
-    if (!textarea) return
+  const insertMarkdown = useCallback((command: () => void) => {
+    if (editor) {
+      command()
+      editor.commands.focus()
+    }
+  }, [editor])
 
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selectedText = content.substring(start, end)
-    const newText =
-      content.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      content.substring(end)
-
-    setContent(newText)
-    setHasChanges(true)
-
-    // Restore focus and selection
-    setTimeout(() => {
-      textarea.focus()
-      textarea.setSelectionRange(
-        start + before.length,
-        end + before.length
-      )
-    }, 0)
-  }, [content])
+  if (!editor) {
+    return <div className="flex h-full items-center justify-center">Loading editor...</div>
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -91,60 +104,74 @@ export function MarkdownEditor({
       <div className="flex items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => insertMarkdown('# ')}
-            className="rounded px-2 py-1 text-sm hover:bg-gray-100"
-            title="Heading"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm hover:bg-gray-100",
+              editor.isActive('heading', { level: 1 }) && 'bg-gray-200'
+            )}
+            title="Heading 1"
           >
             H1
           </button>
           <button
-            onClick={() => insertMarkdown('## ')}
-            className="rounded px-2 py-1 text-sm hover:bg-gray-100"
-            title="Subheading"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm hover:bg-gray-100",
+              editor.isActive('heading', { level: 2 }) && 'bg-gray-200'
+            )}
+            title="Heading 2"
           >
             H2
           </button>
           <div className="h-4 w-px bg-gray-300" />
           <button
-            onClick={() => insertMarkdown('**', '**')}
-            className="rounded px-2 py-1 text-sm font-bold hover:bg-gray-100"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleBold().run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm font-bold hover:bg-gray-100",
+              editor.isActive('bold') && 'bg-gray-200'
+            )}
             title="Bold"
           >
             B
           </button>
           <button
-            onClick={() => insertMarkdown('*', '*')}
-            className="rounded px-2 py-1 text-sm italic hover:bg-gray-100"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleItalic().run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm italic hover:bg-gray-100",
+              editor.isActive('italic') && 'bg-gray-200'
+            )}
             title="Italic"
           >
             I
           </button>
           <button
-            onClick={() => insertMarkdown('`', '`')}
-            className="rounded px-2 py-1 font-mono text-sm hover:bg-gray-100"
-            title="Code"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleCode().run())}
+            className={cn(
+              "rounded px-2 py-1 font-mono text-sm hover:bg-gray-100",
+              editor.isActive('code') && 'bg-gray-200'
+            )}
+            title="Inline Code"
           >
             {'<>'}
           </button>
           <div className="h-4 w-px bg-gray-300" />
           <button
-            onClick={() => insertMarkdown('[', '](url)')}
-            className="rounded px-2 py-1 text-sm hover:bg-gray-100"
-            title="Link"
-          >
-            🔗
-          </button>
-          <button
-            onClick={() => insertMarkdown('- ')}
-            className="rounded px-2 py-1 text-sm hover:bg-gray-100"
-            title="List"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleBulletList().run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm hover:bg-gray-100",
+              editor.isActive('bulletList') && 'bg-gray-200'
+            )}
+            title="Bullet List"
           >
             • List
           </button>
           <button
-            onClick={() => insertMarkdown('```\n', '\n```')}
-            className="rounded px-2 py-1 text-sm hover:bg-gray-100"
-            title="Code block"
+            onClick={() => insertMarkdown(() => editor.chain().focus().toggleCodeBlock().run())}
+            className={cn(
+              "rounded px-2 py-1 text-sm hover:bg-gray-100",
+              editor.isActive('codeBlock') && 'bg-gray-200'
+            )}
+            title="Code Block"
           >
             {'{ }'}
           </button>
@@ -183,7 +210,7 @@ export function MarkdownEditor({
           </div>
 
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={handleAiAssist}
             disabled={aiAssisting}
@@ -220,13 +247,9 @@ export function MarkdownEditor({
                 {fileName || 'Edit Markdown'}
               </p>
             </div>
-            <textarea
-              value={content}
-              onChange={(e) => handleContentChange(e.target.value)}
-              className="flex-1 resize-none p-4 font-mono text-sm focus:outline-none"
-              placeholder="Start writing your markdown content..."
-              spellCheck={false}
-            />
+            <div className="flex-1 overflow-auto">
+              <EditorContent editor={editor} />
+            </div>
           </div>
         )}
 
