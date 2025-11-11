@@ -2,8 +2,8 @@
 import dotenv from 'dotenv'
 import path from 'path'
 
-// Load .env from monorepo root (two levels up from src directory)
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
+// Load .env from proxy app directory (one level up from src directory)
+dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
