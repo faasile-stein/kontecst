@@ -7,7 +7,7 @@
 
 -- Create test users in auth.users
 -- Note: Supabase auth manages these, but we can insert them directly for local dev
--- Password hashes are for 'testuser123' and 'adminuser123' respectively
+-- Password hashes generated with bcrypt cost factor 10
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -34,7 +34,7 @@ INSERT INTO auth.users (
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'test@kontecst.dev',
-    '$2a$10$TKh8H1.PfQx37YgCzwiKb.KjNyLngTA7ub1sDmY5YvPZu8wKJC0bq', -- testuser123
+    '$2b$10$jwjF2KBor1VRq1iFJgtbmeGot/IxPSOd5ZEFjyVs9powZcGk09Oeu', -- testuser123
     NOW(),
     '',
     '',
@@ -55,7 +55,7 @@ INSERT INTO auth.users (
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'admin@kontecst.dev',
-    '$2a$10$TKh8H1.PfQx37YgCzwiKb.KjNyLngTA7ub1sDmY5YvPZu8wKJC0bq', -- adminuser123
+    '$2b$10$v2HAMkIFRMls91uPAVaFZuUEIBKLGgBB4AeWvczadOpiQYwJBMiAS', -- adminuser123
     NOW(),
     '',
     '',
