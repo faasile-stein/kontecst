@@ -1,10 +1,28 @@
 // Load environment variables FIRST, before any other imports
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 
-// Load .env from current working directory (pnpm runs this from apps/proxy/)
-// Using process.cwd() instead of __dirname for tsx compatibility
-dotenv.config({ path: path.join(process.cwd(), '.env') })
+// Load environment variables from multiple locations (later files override earlier ones)
+// This ensures env vars are loaded regardless of where the script is run from
+const envPaths = [
+  // Monorepo root
+  path.resolve(process.cwd(), '../../.env'),
+  path.resolve(process.cwd(), '../../.env.local'),
+  // App-specific (current directory when run via pnpm from apps/proxy)
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '.env.local'),
+]
+
+// Load each .env file if it exists
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    const result = dotenv.config({ path: envPath })
+    if (!result.error) {
+      console.log(`✓ Loaded environment variables from: ${path.relative(process.cwd(), envPath)}`)
+    }
+  }
+}
 
 import Fastify from 'fastify'
 import cors from '@fastify/cors'

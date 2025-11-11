@@ -106,6 +106,55 @@ kontecst/
 └── docker-compose.yml    # Local development environment
 ```
 
+## Troubleshooting
+
+### Environment Variable Issues
+
+If you see errors like `SUPABASE_URL environment variable is required` or `Your project's URL and Key are required`:
+
+1. **Run the setup script if you haven't already:**
+   ```bash
+   pnpm setup
+   ```
+
+2. **Verify .env files exist:**
+   ```bash
+   ls -la .env apps/web/.env apps/proxy/.env
+   ```
+
+3. **Configure Supabase credentials in ALL required locations:**
+
+   **Root `.env`:**
+   ```env
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_KEY=your-service-role-key
+   ```
+
+   **`apps/web/.env`:**
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+   **`apps/proxy/.env`:**
+   ```env
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_SERVICE_KEY=your-service-role-key
+   ```
+
+4. **Get your Supabase credentials:**
+   - Go to https://app.supabase.com/project/_/settings/api
+   - Copy the Project URL as `SUPABASE_URL`
+   - Copy the `anon` `public` key as `SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - Copy the `service_role` `secret` key as `SUPABASE_SERVICE_KEY`
+
+5. **Restart the development servers:**
+   ```bash
+   pnpm dev:stop
+   pnpm dev:start
+   ```
+
 ## Documentation
 
 - [Architecture Overview](./docs/ARCHITECTURE.md)

@@ -124,15 +124,39 @@ fi
 
 echo ""
 
-# Step 4: Generate encryption key
+# Step 4: Generate and set encryption key
 print_step "Step 4: Generating encryption key..."
 echo ""
 
 if command_exists openssl; then
     ENCRYPTION_KEY=$(openssl rand -hex 32)
-    print_success "Encryption key generated: $ENCRYPTION_KEY"
-    echo ""
-    print_warning "Save this key to your apps/proxy/.env file as ENCRYPTION_KEY"
+
+    # Update proxy .env file with the generated key
+    if [ -f "apps/proxy/.env" ]; then
+        # Check if ENCRYPTION_KEY already has a real value (not the placeholder)
+        if grep -q "ENCRYPTION_KEY=generate-a-secure-32-byte-key-here" apps/proxy/.env || grep -q "ENCRYPTION_KEY=$" apps/proxy/.env; then
+            # macOS and Linux compatible sed
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' "s|ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" apps/proxy/.env
+            else
+                sed -i "s|ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" apps/proxy/.env
+            fi
+            print_success "Encryption key generated and saved to apps/proxy/.env"
+        else
+            print_info "Encryption key already configured in apps/proxy/.env"
+        fi
+    fi
+
+    # Also set in root .env if it exists
+    if [ -f ".env" ]; then
+        if grep -q "ENCRYPTION_KEY=.*" .env && ! grep -q "ENCRYPTION_KEY=$ENCRYPTION_KEY" .env; then
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' "s|ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" .env
+            else
+                sed -i "s|ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$ENCRYPTION_KEY|" .env
+            fi
+        fi
+    fi
 else
     print_warning "OpenSSL not found. Generate encryption key manually with: openssl rand -hex 32"
 fi
@@ -144,20 +168,35 @@ print_header "Configuration Required"
 echo ""
 echo "Before running the application, you need to configure the following:"
 echo ""
-echo "1. Supabase Configuration (apps/web/.env):"
-echo "   - NEXT_PUBLIC_SUPABASE_URL"
-echo "   - NEXT_PUBLIC_SUPABASE_ANON_KEY"
-echo "   - SUPABASE_SERVICE_ROLE_KEY"
+echo "1. Supabase Configuration:"
+echo ""
+echo "   Root .env file:"
+echo "   - SUPABASE_URL=https://your-project.supabase.co"
+echo "   - SUPABASE_ANON_KEY=your-anon-key"
+echo "   - SUPABASE_SERVICE_KEY=your-service-role-key"
+echo ""
+echo "   Web app .env (apps/web/.env):"
+echo "   - NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co"
+echo "   - NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key"
+echo ""
+echo "   Proxy .env (apps/proxy/.env):"
+echo "   - SUPABASE_URL=https://your-project.supabase.co"
+echo "   - SUPABASE_SERVICE_KEY=your-service-role-key"
 echo ""
 echo "   Get these from: https://app.supabase.com/project/_/settings/api"
 echo ""
 echo "2. OpenAI API Key (apps/web/.env):"
-echo "   - OPENAI_API_KEY"
+echo "   - OPENAI_API_KEY=sk-..."
 echo ""
 echo "   Get this from: https://platform.openai.com/api-keys"
 echo ""
-echo "3. Encryption Key (apps/proxy/.env):"
-echo "   - ENCRYPTION_KEY=$ENCRYPTION_KEY"
+if [ -n "$ENCRYPTION_KEY" ]; then
+    echo "3. Encryption Key (apps/proxy/.env):"
+    echo "   ✓ Already configured: ENCRYPTION_KEY=$ENCRYPTION_KEY"
+else
+    echo "3. Encryption Key (apps/proxy/.env):"
+    echo "   - Generate with: openssl rand -hex 32"
+fi
 echo ""
 
 # Step 6: Database migrations
