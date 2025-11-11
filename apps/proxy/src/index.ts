@@ -2,8 +2,9 @@
 import dotenv from 'dotenv'
 import path from 'path'
 
-// Load .env from proxy app directory (one level up from src directory)
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+// Load .env from current working directory (pnpm runs this from apps/proxy/)
+// Using process.cwd() instead of __dirname for tsx compatibility
+dotenv.config({ path: path.join(process.cwd(), '.env') })
 
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
