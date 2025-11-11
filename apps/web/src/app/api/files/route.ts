@@ -64,6 +64,7 @@ export async function POST(request: Request) {
     // Read file content and calculate hash
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    const content = buffer.toString('utf-8')
     const contentHash = createHash('sha256').update(buffer).digest('hex')
 
     // Upload to file proxy service
@@ -79,13 +80,14 @@ export async function POST(request: Request) {
     // In production, you'd get an auth token and upload to the proxy service
     const storagePath = `${packageData.slug}/${version.version}/${path}`
 
-    // Store file metadata in database
+    // Store file metadata and content in database
     const { data, error } = await supabase
       .from('files')
       .insert({
         package_version_id: packageVersionId,
         filename: file.name,
         path: path,
+        content: content,
         content_hash: contentHash,
         size_bytes: file.size,
         mime_type: file.type || 'text/markdown',
