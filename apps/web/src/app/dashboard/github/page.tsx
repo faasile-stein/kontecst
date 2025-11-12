@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
+import { toast } from 'sonner'
 import {
   GitBranch,
   Github,
@@ -130,7 +131,7 @@ export default function GitHubIntegrationPage() {
       }, 2000)
     } catch (error: any) {
       console.error('Error syncing repository:', error)
-      alert(`Sync failed: ${error.message}`)
+      toast.error(`Sync failed: ${error.message}`)
     } finally {
       setSyncing((prev) => ({ ...prev, [repositoryId]: false }))
     }
@@ -215,7 +216,7 @@ export default function GitHubIntegrationPage() {
           className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           onClick={() => {
             // TODO: Open GitHub App installation flow
-            alert(
+            toast.info(
               'GitHub App installation flow not yet implemented. This would open the GitHub OAuth flow.'
             )
           }}
@@ -236,7 +237,7 @@ export default function GitHubIntegrationPage() {
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
             onClick={() => {
               // TODO: Open GitHub App installation flow
-              alert(
+              toast.info(
                 'GitHub App installation flow not yet implemented. This would open the GitHub OAuth flow.'
               )
             }}
@@ -287,7 +288,7 @@ export default function GitHubIntegrationPage() {
                 className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
                 onClick={() => {
                   // TODO: Add repository modal
-                  alert(
+                  toast.info(
                     'Add repository flow not yet implemented. This would fetch available repos from GitHub.'
                   )
                 }}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Database, Server, Globe, Shield, Plus, Activity } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface DedicatedDatabase {
   id: string
@@ -81,7 +82,7 @@ export default function AdminPage() {
 
   const handleProvision = async () => {
     if (!organizationId) {
-      alert('Please create an organization first')
+      toast.error('Please create an organization first')
       return
     }
 
@@ -103,10 +104,11 @@ export default function AdminPage() {
         throw new Error(error.error || 'Failed to provision database')
       }
 
+      toast.success('Database provisioned successfully')
       setShowProvisionModal(false)
       await fetchDatabases()
     } catch (error: any) {
-      alert(error.message)
+      toast.error(error.message)
     }
   }
 

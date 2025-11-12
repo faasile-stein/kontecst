@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, FileText, Trash2 } from 'lucide-react'
-import { MarkdownEditor } from '@/components/editor/markdown-editor'
+import { MarkdownEditorLazy as MarkdownEditor } from '@/components/editor/markdown-editor-lazy'
+import type { MarkdownEditor } from '@/components/editor/markdown-editor'
 import { Button } from '@/components/ui/button'
 
 interface FileItem {

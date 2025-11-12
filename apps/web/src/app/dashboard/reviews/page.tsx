@@ -1,4 +1,5 @@
 'use client'
+import { toast } from 'sonner'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -131,7 +132,7 @@ export default function ReviewsPage() {
       setReviewComment('')
     } catch (error: any) {
       console.error('Error submitting review:', error)
-      alert(`Failed to submit review: ${error.message}`)
+      toast.error(`Failed to submit review: ${error.message}`)
     } finally {
       setSubmitting(false)
     }

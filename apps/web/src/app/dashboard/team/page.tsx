@@ -1,4 +1,5 @@
 'use client'
+import { toast } from 'sonner'
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -99,7 +100,7 @@ export default function TeamPage() {
       setInviteRole('member')
       await fetchMembers(organizationId)
     } catch (error: any) {
-      alert(error.message)
+      toast.error(error.message)
     }
   }
 
@@ -116,7 +117,7 @@ export default function TeamPage() {
 
       await fetchMembers(organizationId)
     } catch (error: any) {
-      alert(error.message)
+      toast.error(error.message)
     }
   }
 

@@ -1,30 +1,39 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Editor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { createMarkdownEditor } from 'tiptap-markdown'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
-import { Eye, Code, Save, Sparkles } from 'lucide-react'
+import { Eye, Code, Save, Sparkles, Check, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface MarkdownEditorProps {
   initialContent?: string
   onSave?: (content: string) => Promise<void>
   fileName?: string
+  autoSave?: boolean
+  autoSaveInterval?: number // in milliseconds
 }
+
+type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error'
 
 export function MarkdownEditor({
   initialContent = '',
   onSave,
   fileName,
+  autoSave = true,
+  autoSaveInterval = 3000, // 3 seconds
 }: MarkdownEditorProps) {
   const [content, setContent] = useState(initialContent)
   const [mode, setMode] = useState<'edit' | 'preview' | 'split'>('split')
-  const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   const [aiAssisting, setAiAssisting] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [lastSavedContent, setLastSavedContent] = useState(initialContent)
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastContentRef = useRef(initialContent)
 
   // Create the MarkdownEditor class once
   const MarkdownEditorClass = useMemo(() => createMarkdownEditor(Editor), [])
@@ -40,31 +49,85 @@ export function MarkdownEditor({
       },
       onUpdate: ({ editor }) => {
         const markdown = (editor as any).getMarkdown()
+        lastContentRef.current = markdown
         setContent(markdown)
-        setHasChanges(markdown !== initialContent)
+
+        // Mark as unsaved if content changed
+        if (markdown !== lastSavedContent) {
+          setSaveStatus('unsaved')
+        }
       },
     })
     return editorInstance
-  }, [MarkdownEditorClass, initialContent])
+  }, [MarkdownEditorClass, initialContent, lastSavedContent])
+
+  // Auto-save effect with debouncing
+  useEffect(() => {
+    if (!autoSave || !onSave || saveStatus !== 'unsaved') return
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current)
+    }
+
+    // Set new timer
+    autoSaveTimerRef.current = setTimeout(() => {
+      handleSave(true)
+    }, autoSaveInterval)
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current)
+      }
+    }
+  }, [content, autoSave, onSave, saveStatus, autoSaveInterval])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + S to save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault()
+        handleSave(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   useEffect(() => {
     return () => {
       editor?.destroy()
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current)
+      }
     }
   }, [editor])
 
-  const handleSave = async () => {
+  const handleSave = async (isAutoSave: boolean = false) => {
     if (!onSave || !editor) return
 
-    setSaving(true)
+    const markdown = lastContentRef.current
+
+    // Don't save if no changes
+    if (markdown === lastSavedContent) {
+      return
+    }
+
+    setSaveStatus('saving')
     try {
-      const markdown = (editor as any).getMarkdown()
       await onSave(markdown)
-      setHasChanges(false)
+      setLastSavedContent(markdown)
+      setSaveStatus('saved')
+
+      if (!isAutoSave) {
+        toast.success('Changes saved successfully')
+      }
     } catch (error) {
       console.error('Save failed:', error)
-    } finally {
-      setSaving(false)
+      setSaveStatus('error')
+      toast.error('Failed to save changes')
     }
   }
 
@@ -222,11 +285,17 @@ export function MarkdownEditor({
           {onSave && (
             <Button
               size="sm"
-              onClick={handleSave}
-              disabled={saving || !hasChanges}
+              onClick={() => handleSave(false)}
+              disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+              variant={saveStatus === 'unsaved' ? 'primary' : 'secondary'}
             >
-              <Save className="mr-2 h-4 w-4" />
-              {saving ? 'Saving...' : 'Save'}
+              {saveStatus === 'saving' && <Clock className="mr-2 h-4 w-4 animate-spin" />}
+              {saveStatus === 'saved' && <Check className="mr-2 h-4 w-4" />}
+              {saveStatus === 'unsaved' && <Save className="mr-2 h-4 w-4" />}
+              {saveStatus === 'error' && <Save className="mr-2 h-4 w-4" />}
+              {saveStatus === 'saving' ? 'Saving...' :
+               saveStatus === 'saved' ? 'Saved' :
+               saveStatus === 'error' ? 'Retry' : 'Save'}
             </Button>
           )}
         </div>
@@ -278,7 +347,24 @@ export function MarkdownEditor({
           <span>{content.split('\n').length} lines</span>
           <span>{content.split(/\s+/).filter(Boolean).length} words</span>
         </div>
-        {hasChanges && <span className="text-yellow-600">• Unsaved changes</span>}
+        <div className="flex items-center gap-2">
+          {saveStatus === 'unsaved' && autoSave && (
+            <span className="text-yellow-600">• Auto-saving...</span>
+          )}
+          {saveStatus === 'unsaved' && !autoSave && (
+            <span className="text-yellow-600">• Unsaved changes</span>
+          )}
+          {saveStatus === 'saving' && (
+            <span className="text-blue-600">• Saving...</span>
+          )}
+          {saveStatus === 'saved' && (
+            <span className="text-green-600">• All changes saved</span>
+          )}
+          {saveStatus === 'error' && (
+            <span className="text-red-600">• Save failed</span>
+          )}
+          <span className="text-neutral-400">Cmd+S to save</span>
+        </div>
       </div>
     </div>
   )
