@@ -1,4 +1,5 @@
 'use client'
+import { toast } from 'sonner'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -142,7 +143,7 @@ export default function SSOPage() {
       await fetchConnections()
     } catch (error: any) {
       console.error('Error creating SSO connection:', error)
-      alert(`Failed to create SSO connection: ${error.message}`)
+      toast.error(`Failed to create SSO connection: ${error.message}`)
     }
   }
 
@@ -159,7 +160,7 @@ export default function SSOPage() {
       await fetchConnections()
     } catch (error) {
       console.error('Error toggling SSO connection:', error)
-      alert('Failed to toggle SSO connection')
+      toast.error('Failed to toggle SSO connection')
     }
   }
 
@@ -177,7 +178,7 @@ export default function SSOPage() {
       await fetchConnections()
     } catch (error) {
       console.error('Error deleting SSO connection:', error)
-      alert('Failed to delete SSO connection')
+      toast.error('Failed to delete SSO connection')
     }
   }
 

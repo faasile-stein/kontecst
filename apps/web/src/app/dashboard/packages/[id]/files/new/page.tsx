@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
-import { MarkdownEditor } from '@/components/editor/markdown-editor'
+import { MarkdownEditorLazy as MarkdownEditor } from '@/components/editor/markdown-editor-lazy'
+import type { MarkdownEditor } from '@/components/editor/markdown-editor'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 export default function NewFilePage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -42,7 +44,7 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
 
   const handleSave = async (content: string) => {
     if (!fileName || !filePath || !selectedVersion) {
-      alert('Please provide a file name and path')
+      toast.error('Please provide a file name and path')
       return
     }
 
@@ -67,10 +69,11 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
         throw new Error(error.error || 'Failed to create file')
       }
 
+      toast.success('File created successfully')
       // Redirect to package page on success
       router.push(`/dashboard/packages/${params.id}`)
     } catch (error: any) {
-      alert(`Error creating file: ${error.message}`)
+      toast.error(`Error creating file: ${error.message}`)
     } finally {
       setSaving(false)
     }

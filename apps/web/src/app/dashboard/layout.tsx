@@ -20,8 +20,8 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       <DashboardNav user={user} />
-      <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="container mx-auto px-6 py-8">{children}</div>
+      <main className="flex-1 overflow-y-auto bg-gray-50 lg:pt-0 pt-16">
+        <div className="container mx-auto px-4 sm:px-6 py-8">{children}</div>
       </main>
     </div>
   )

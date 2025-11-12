@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
@@ -21,6 +21,8 @@ import {
   Github,
   ClipboardCheck,
   KeyRound,
+  Menu,
+  X,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -44,9 +46,27 @@ const navigation = [
 ]
 
 export function DashboardNav({ user }: NavProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [mobileMenuOpen])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -55,9 +75,44 @@ export function DashboardNav({ user }: NavProps) {
   }
 
   return (
-    <div className="flex w-64 flex-col bg-white border-r border-neutral-300">
+    <>
+      {/* Mobile header with hamburger */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-white border-b border-neutral-300 flex items-center px-4">
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="p-2 rounded-md text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        <Link href="/dashboard" className="ml-3 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gradient shadow-sm">
+            <span className="text-sm font-bold text-white">K</span>
+          </div>
+          <span className="text-lg font-bold text-neutral-900">Kontecst</span>
+        </Link>
+      </div>
+
+      {/* Mobile backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={cn(
+          'fixed lg:static inset-y-0 left-0 z-50',
+          'flex w-64 flex-col bg-white border-r border-neutral-300',
+          'transition-transform duration-300 ease-in-out lg:translate-x-0',
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
       {/* Logo/Header */}
-      <div className="flex h-16 items-center px-6 border-b border-neutral-300">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-neutral-300">
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient shadow-sm">
             <span className="text-base font-bold text-white">K</span>
@@ -66,6 +121,14 @@ export function DashboardNav({ user }: NavProps) {
             Kontecst
           </span>
         </Link>
+        {/* Close button for mobile */}
+        <button
+          onClick={() => setMobileMenuOpen(false)}
+          className="lg:hidden p-2 rounded-md text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -126,5 +189,6 @@ export function DashboardNav({ user }: NavProps) {
         </button>
       </div>
     </div>
+    </>
   )
 }
