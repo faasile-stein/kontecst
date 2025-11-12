@@ -108,6 +108,38 @@ kontecst/
 
 ## Troubleshooting
 
+### Next.js Script Loading Errors
+
+If you see browser errors like `Loading failed for the <script> with source "/_next/static/chunks/fallback/..."`:
+
+1. **The dev server is not running or build artifacts are missing.**
+
+   **Solution:**
+   ```bash
+   # Stop any running servers
+   pnpm dev:stop
+
+   # Clean and reinstall dependencies
+   rm -rf node_modules .pnpm-store
+   pnpm install --ignore-scripts
+
+   # Start the dev server
+   cd apps/web
+   pnpm dev
+   ```
+
+2. **If the install fails with Supabase postinstall errors**, use `--ignore-scripts`:
+   ```bash
+   pnpm install --ignore-scripts
+   ```
+
+3. **The .next build directory should be automatically created** when the dev server starts. If issues persist:
+   ```bash
+   cd apps/web
+   rm -rf .next
+   pnpm dev
+   ```
+
 ### Environment Variable Issues
 
 If you see errors like `SUPABASE_URL environment variable is required` or `Your project's URL and Key are required`:

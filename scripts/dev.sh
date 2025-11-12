@@ -105,8 +105,21 @@ install_dependencies() {
 
     if [ ! -d "node_modules" ]; then
         print_info "Installing dependencies with pnpm..."
-        pnpm install
-        print_success "Dependencies installed"
+
+        # Try normal install first
+        if pnpm install; then
+            print_success "Dependencies installed"
+        else
+            print_warning "Normal install failed, trying with --ignore-scripts..."
+            # Fallback to ignore-scripts if postinstall fails (common with Supabase CLI)
+            if pnpm install --ignore-scripts; then
+                print_success "Dependencies installed (scripts skipped)"
+                print_info "Note: Some postinstall scripts were skipped due to errors"
+            else
+                print_error "Failed to install dependencies"
+                exit 1
+            fi
+        fi
     else
         print_info "Dependencies already installed. Run 'pnpm install' manually to update."
     fi
