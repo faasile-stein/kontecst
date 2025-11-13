@@ -73,9 +73,12 @@ export default function SSOPage() {
       const orgsResponse = await fetch('/api/organizations')
       if (orgsResponse.ok) {
         const orgsData = await orgsResponse.json()
-        setOrganizations(orgsData)
-        if (orgsData.length > 0 && !selectedOrg) {
-          setSelectedOrg(orgsData[0].id)
+        // Extract organizations from memberships
+        const orgs =
+          orgsData.organizations?.map((m: any) => m.organizations).filter(Boolean) || []
+        setOrganizations(orgs)
+        if (orgs.length > 0 && !selectedOrg) {
+          setSelectedOrg(orgs[0].id)
         }
       }
 
