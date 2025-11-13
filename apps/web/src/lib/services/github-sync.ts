@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Octokit } from '@octokit/rest'
 import { processFileEmbeddings } from './embeddings'
+import { safeDecrypt } from '@/lib/crypto'
 
 interface GitHubFile {
   path: string
@@ -52,11 +53,10 @@ export async function syncGitHubRepository(
       throw new Error('Repository not found')
     }
 
-    // Decrypt access token (for now, just decode from base64)
-    const accessToken = Buffer.from(
-      repo.github_connections.access_token_encrypted,
-      'base64'
-    ).toString('utf-8')
+    // Decrypt access token (handles both new encrypted format and legacy base64)
+    const accessToken = safeDecrypt(
+      repo.github_connections.access_token_encrypted
+    )
 
     // Initialize Octokit
     const octokit = new Octokit({ auth: accessToken })

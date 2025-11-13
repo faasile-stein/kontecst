@@ -106,6 +106,48 @@ kontecst/
 └── docker-compose.yml    # Local development environment
 ```
 
+## GitHub Integration Setup
+
+Kontecst supports syncing Markdown files directly from GitHub repositories. To enable this feature, you'll need to create a GitHub App and configure it.
+
+### Quick Setup
+
+1. **Create a GitHub App** at https://github.com/settings/apps/new with:
+   - **Callback URL**: `https://your-domain.com/api/github/install/callback`
+   - **Permissions**: Repository contents (read), Metadata (read)
+
+2. **Add environment variables** to `apps/web/.env`:
+   ```bash
+   # GitHub App Configuration
+   GITHUB_APP_ID=123456
+   GITHUB_APP_CLIENT_ID=Iv1.abc123def456
+   GITHUB_APP_CLIENT_SECRET=your-client-secret-here
+
+   # Encryption Key (for storing access tokens securely)
+   # Generate using: openssl rand -hex 32
+   ENCRYPTION_KEY=your-64-character-hex-key-here
+   ```
+
+3. **Restart your development server**:
+   ```bash
+   pnpm dev:stop
+   pnpm dev:start
+   ```
+
+### Detailed Setup Guide
+
+For complete step-by-step instructions, including troubleshooting and security best practices, see:
+- **[GitHub App Setup Guide](./docs/GITHUB_APP_SETUP.md)**
+
+### Features
+
+Once configured, users can:
+- Connect their GitHub accounts via OAuth
+- Select repositories to sync
+- Configure sync paths and branches
+- Automatically sync Markdown files to Kontecst packages
+- Enable auto-publish for automatic version creation on sync
+
 ## Troubleshooting
 
 ### Next.js Script Loading Errors

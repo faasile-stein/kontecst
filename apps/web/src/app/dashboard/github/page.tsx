@@ -67,7 +67,24 @@ export default function GitHubIntegrationPage() {
 
   useEffect(() => {
     fetchConnections()
+    handleCallbackMessages()
   }, [])
+
+  const handleCallbackMessages = () => {
+    const params = new URLSearchParams(window.location.search)
+    const success = params.get('success')
+    const error = params.get('error')
+
+    if (success === 'connected') {
+      toast.success('Successfully connected to GitHub!')
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard/github')
+    } else if (error) {
+      toast.error(`GitHub connection failed: ${error}`)
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard/github')
+    }
+  }
 
   useEffect(() => {
     if (selectedConnection) {
@@ -215,10 +232,7 @@ export default function GitHubIntegrationPage() {
         <button
           className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
           onClick={() => {
-            // TODO: Open GitHub App installation flow
-            toast.info(
-              'GitHub App installation flow not yet implemented. This would open the GitHub OAuth flow.'
-            )
+            window.location.href = '/api/github/install'
           }}
         >
           <Github className="h-4 w-4" />
@@ -236,10 +250,7 @@ export default function GitHubIntegrationPage() {
           <button
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
             onClick={() => {
-              // TODO: Open GitHub App installation flow
-              toast.info(
-                'GitHub App installation flow not yet implemented. This would open the GitHub OAuth flow.'
-              )
+              window.location.href = '/api/github/install'
             }}
           >
             <Github className="h-4 w-4" />
