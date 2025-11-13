@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { encrypt } from '@/lib/crypto'
 
 const CreateConnectionSchema = z.object({
   installationId: z.number(),
@@ -63,11 +64,8 @@ export async function POST(request: Request) {
     const body = await request.json()
     const validated = CreateConnectionSchema.parse(body)
 
-    // TODO: Encrypt access token before storing
-    // For now, we'll store it as-is (in production, use encryption)
-    const accessTokenEncrypted = Buffer.from(validated.accessToken).toString(
-      'base64'
-    )
+    // Encrypt access token before storing using AES-256-GCM
+    const accessTokenEncrypted = encrypt(validated.accessToken)
 
     const { data: connection, error } = await supabase
       .from('github_connections')
