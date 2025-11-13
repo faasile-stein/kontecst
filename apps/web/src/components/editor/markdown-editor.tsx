@@ -31,9 +31,9 @@ export function MarkdownEditor({
   const [mode, setMode] = useState<'edit' | 'preview' | 'split'>('split')
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   const [aiAssisting, setAiAssisting] = useState(false)
-  const [lastSavedContent, setLastSavedContent] = useState(initialContent)
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastContentRef = useRef(initialContent)
+  const lastSavedContentRef = useRef(initialContent)
 
   // Create the MarkdownEditor class once
   const MarkdownEditorClass = useMemo(() => createMarkdownEditor(Editor), [])
@@ -53,13 +53,13 @@ export function MarkdownEditor({
         setContent(markdown)
 
         // Mark as unsaved if content changed
-        if (markdown !== lastSavedContent) {
+        if (markdown !== lastSavedContentRef.current) {
           setSaveStatus('unsaved')
         }
       },
     })
     return editorInstance
-  }, [MarkdownEditorClass, initialContent, lastSavedContent])
+  }, [MarkdownEditorClass, initialContent])
 
   // Auto-save effect with debouncing
   useEffect(() => {
@@ -111,14 +111,14 @@ export function MarkdownEditor({
     const markdown = lastContentRef.current
 
     // Don't save if no changes
-    if (markdown === lastSavedContent) {
+    if (markdown === lastSavedContentRef.current) {
       return
     }
 
     setSaveStatus('saving')
     try {
       await onSave(markdown)
-      setLastSavedContent(markdown)
+      lastSavedContentRef.current = markdown
       setSaveStatus('saved')
 
       if (!isAutoSave) {
