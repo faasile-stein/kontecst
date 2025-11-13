@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, FilePlus } from 'lucide-react'
 import { FileUpload } from '@/components/upload/file-upload'
+import { PdfUpload } from '@/components/upload/pdf-upload'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function UploadPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -77,7 +79,7 @@ export default function UploadPage({ params }: { params: { id: string } }) {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Upload Files</h1>
             <p className="mt-2 text-sm text-gray-600">
-              Upload Markdown files to {packageData.name}
+              Upload Markdown or PDF files to {packageData.name}
             </p>
           </div>
           <Link href={`/dashboard/packages/${params.id}/files/new`}>
@@ -125,10 +127,32 @@ export default function UploadPage({ params }: { params: { id: string } }) {
               </div>
 
               {selectedVersion && (
-                <FileUpload
-                  packageVersionId={selectedVersion}
-                  onUploadComplete={handleUploadComplete}
-                />
+                <Tabs defaultValue="markdown" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="markdown">Markdown Files</TabsTrigger>
+                    <TabsTrigger value="pdf">PDF Upload (AI-Powered)</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="markdown" className="mt-4">
+                    <FileUpload
+                      packageVersionId={selectedVersion}
+                      onUploadComplete={handleUploadComplete}
+                    />
+                  </TabsContent>
+                  <TabsContent value="pdf" className="mt-4">
+                    <div className="rounded-md bg-blue-50 p-4 mb-4">
+                      <p className="text-sm text-blue-800">
+                        Upload a PDF and our AI will extract the text using OCR (if needed) and
+                        convert it to a structured Markdown document based on your specified
+                        purpose. Perfect for documentation, research papers, or any PDF content
+                        you want to add to your package.
+                      </p>
+                    </div>
+                    <PdfUpload
+                      packageVersionId={selectedVersion}
+                      onUploadComplete={handleUploadComplete}
+                    />
+                  </TabsContent>
+                </Tabs>
               )}
             </>
           )}

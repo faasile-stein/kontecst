@@ -29,5 +29,8 @@
     "vector-store",
     "embeddings",
     "ai"
-  ]
+  ],
+  "dependencies": {
+    "sonner": "^2.0.7"
+  }
 }

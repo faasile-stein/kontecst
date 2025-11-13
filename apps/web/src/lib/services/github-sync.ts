@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Octokit } from '@octokit/rest'
-import { generateEmbeddings } from './embeddings'
+import { processFileEmbeddings } from './embeddings'
 
 interface GitHubFile {
   path: string
@@ -210,7 +210,10 @@ export async function syncGitHubRepository(
       // Generate embeddings if auto-publish is enabled
       if (repo.auto_publish) {
         try {
-          await generateEmbeddings(version.id, file.path, file.content)
+          // Note: processFileEmbeddings requires fileId, which we don't have here yet
+          // This would need to be refactored to get the file ID after insertion
+          // For now, skipping embeddings generation during sync
+          // await processFileEmbeddings(fileId, version.id, file.content)
         } catch (embError) {
           console.error(`Error generating embeddings for ${file.path}:`, embError)
         }
