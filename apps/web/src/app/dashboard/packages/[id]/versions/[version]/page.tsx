@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, Download, GitCompare } from 'lucide-react'
+import { ArrowLeft, FileText, GitCompare } from 'lucide-react'
+import { DownloadButton } from '@/components/version/download-button'
 
 export default async function VersionDetailPage({
   params,
@@ -37,7 +38,7 @@ export default async function VersionDetailPage({
   // Get files for this version
   const { data: files } = await supabase
     .from('files')
-    .select('*')
+    .select('id, filename, path, content, size_bytes')
     .eq('package_version_id', version.id)
     .order('path', { ascending: true })
 
@@ -73,10 +74,11 @@ export default async function VersionDetailPage({
           </div>
 
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
+            <DownloadButton
+              packageName={pkg.slug}
+              version={version.version}
+              files={files || []}
+            />
             <Link href={`/dashboard/packages/${params.id}/versions/compare`}>
               <Button variant="outline" size="sm">
                 <GitCompare className="mr-2 h-4 w-4" />

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Package, Download, Star, GitBranch, FileText, ArrowLeft } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import { MarketplaceDownloadButton } from '@/components/marketplace/download-button'
 
 export default async function MarketplacePackagePage({
   params,
@@ -121,10 +122,18 @@ export default async function MarketplacePackagePage({
             <div className="rounded-lg border bg-white p-6 shadow-sm">
               <h3 className="font-semibold text-gray-900">Install</h3>
               <div className="mt-4">
-                <Button className="w-full">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Package
-                </Button>
+                {latestVersion ? (
+                  <MarketplaceDownloadButton
+                    packageSlug={pkg.slug}
+                    versionId={latestVersion.id}
+                    version={latestVersion.version}
+                  />
+                ) : (
+                  <Button className="w-full" disabled>
+                    <Download className="mr-2 h-4 w-4" />
+                    No versions available
+                  </Button>
+                )}
               </div>
               <div className="mt-4">
                 <p className="text-xs font-medium text-gray-700">Or use the API:</p>
