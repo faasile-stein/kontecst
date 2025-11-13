@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, FileText, Trash2 } from 'lucide-react'
 import { MarkdownEditorLazy as MarkdownEditor } from '@/components/editor/markdown-editor-lazy'
 import type { MarkdownEditor } from '@/components/editor/markdown-editor'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 interface FileItem {
   id: string
@@ -91,7 +92,10 @@ export default function EditPackagePage({ params }: { params: { id: string } }) 
   }
 
   const handleSaveFile = async (content: string) => {
-    if (!selectedFile) return
+    if (!selectedFile) {
+      toast.error('No file selected')
+      throw new Error('No file selected')
+    }
 
     try {
       // For new files (not yet saved to database)
@@ -110,13 +114,17 @@ export default function EditPackagePage({ params }: { params: { id: string } }) 
           body: formData,
         })
 
-        if (!response.ok) throw new Error('Failed to create file')
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to create file')
+        }
 
         const newFile = await response.json()
 
         // Update the file in the list with the real ID
         setFiles(files.map(f => f.id === selectedFile.id ? { ...f, id: newFile.id } : f))
         setSelectedFile({ ...selectedFile, id: newFile.id, content })
+        toast.success('File created successfully')
       } else {
         // Update existing file
         const response = await fetch(`/api/files/${selectedFile.id}`, {
@@ -125,10 +133,14 @@ export default function EditPackagePage({ params }: { params: { id: string } }) 
           body: JSON.stringify({ content }),
         })
 
-        if (!response.ok) throw new Error('Failed to save file')
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to save file')
+        }
       }
     } catch (err: any) {
       console.error('Error saving file:', err)
+      toast.error(`Error saving file: ${err.message}`)
       throw err
     }
   }

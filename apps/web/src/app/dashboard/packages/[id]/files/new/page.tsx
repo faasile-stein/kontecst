@@ -45,7 +45,7 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
   const handleSave = async (content: string) => {
     if (!fileName || !filePath || !selectedVersion) {
       toast.error('Please provide a file name and path')
-      return
+      throw new Error('Please provide a file name and path')
     }
 
     setSaving(true)
