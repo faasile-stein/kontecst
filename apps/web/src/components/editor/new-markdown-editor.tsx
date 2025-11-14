@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { Editor as TiptapEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { createMarkdownEditor } from 'tiptap-markdown'
@@ -20,8 +20,14 @@ interface NewMarkdownEditorProps {
 
 type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error'
 
-// Create MarkdownEditor class once outside component to avoid recreating
-const MarkdownEditor = createMarkdownEditor(TiptapEditor)
+// Lazy create MarkdownEditor class to avoid SSR issues
+let MarkdownEditor: ReturnType<typeof createMarkdownEditor> | null = null
+const getMarkdownEditor = () => {
+  if (!MarkdownEditor && typeof window !== 'undefined') {
+    MarkdownEditor = createMarkdownEditor(TiptapEditor)
+  }
+  return MarkdownEditor
+}
 
 export function NewMarkdownEditor({
   initialContent = '',
@@ -41,7 +47,7 @@ export function NewMarkdownEditor({
   const lastSavedContentRef = useRef(initialContent)
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
   const isSavingRef = useRef(false)
-  const editorRef = useRef<InstanceType<typeof MarkdownEditor> | null>(null)
+  const editorRef = useRef<any>(null)
 
   // Create the editor instance - only once, no dependencies
   useEffect(() => {
@@ -52,7 +58,13 @@ export function NewMarkdownEditor({
     // Reset ready state when creating new editor
     setIsEditorReady(false)
 
-    const editor = new MarkdownEditor({
+    const MarkdownEditorClass = getMarkdownEditor()
+    if (!MarkdownEditorClass) {
+      console.error('MarkdownEditor class not available')
+      return
+    }
+
+    const editor = new MarkdownEditorClass({
       content: initialContent,
       extensions: [
         StarterKit.configure({
@@ -75,7 +87,7 @@ export function NewMarkdownEditor({
       },
       onUpdate: ({ editor }) => {
         // Get markdown content
-        const markdown = (editor as InstanceType<typeof MarkdownEditor>).getMarkdown()
+        const markdown = (editor as any).getMarkdown()
         setMarkdownContent(markdown)
 
         // Mark as unsaved if content changed
