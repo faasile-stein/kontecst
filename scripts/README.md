@@ -113,6 +113,35 @@ postgres   Up 2 minutes        0.0.0.0:5432->5432/tcp
 
 ---
 
+### 🔧 Fix Database Reset Script (`fix-db-reset.sh`)
+
+Fixes migration state issues when `pnpm db:reset` fails due to renamed or reordered migrations.
+
+**Usage:**
+```bash
+./scripts/fix-db-reset.sh
+```
+
+**What it does:**
+1. Stops the local Supabase instance
+2. Removes Docker volumes to clear cached migration state
+3. Restarts Supabase with fresh state
+4. Runs `db:reset` to apply all migrations in correct order
+
+**When to use:**
+- When you get errors like "function does not exist" during `db:reset`
+- After migrations have been renamed or reordered
+- When Supabase's internal migration tracking is out of sync with actual migration files
+
+**Example error this fixes:**
+```
+ERROR: function get_user_organization_ids(uuid) does not exist (SQLSTATE 42883)
+```
+
+**Note:** This will completely reset your local Supabase instance and re-apply all migrations. Any local data will be lost, but seed data will be reloaded.
+
+---
+
 ## Quick Reference
 
 | Command | Description |
@@ -121,6 +150,7 @@ postgres   Up 2 minutes        0.0.0.0:5432->5432/tcp
 | `pnpm dev:start` | Start all services |
 | `pnpm dev:stop` | Stop all services |
 | `pnpm dev:status` | Check service status |
+| `./scripts/fix-db-reset.sh` | Fix Supabase migration state issues |
 | `pnpm docker:logs` | View Docker logs |
 | `pnpm dev` | Start dev servers only (no Docker setup) |
 
@@ -181,6 +211,25 @@ postgres   Up 2 minutes        0.0.0.0:5432->5432/tcp
    docker compose down -v  # Remove volumes
    pnpm dev:start
    ```
+
+### Migration errors
+
+If you encounter errors when running `pnpm db:reset`, such as:
+- `ERROR: function get_user_organization_ids(uuid) does not exist`
+- Migration file ordering issues
+- Supabase trying to apply non-existent migration files
+
+**Solution:**
+```bash
+./scripts/fix-db-reset.sh
+```
+
+This script will:
+1. Stop Supabase
+2. Clear cached migration state
+3. Restart and apply migrations in correct order
+
+**Root cause:** Migration files were renamed/reordered, but Supabase's Docker volumes still contain old migration tracking data.
 
 ### Permission errors on scripts
 
