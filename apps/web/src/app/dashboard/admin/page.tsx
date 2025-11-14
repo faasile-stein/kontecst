@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>('small')
   const [storageGb, setStorageGb] = useState<number>(50)
   const [organizationId, setOrganizationId] = useState<string>('')
+  const [recalculatingStats, setRecalculatingStats] = useState(false)
 
   useEffect(() => {
     fetchDatabases()
@@ -109,6 +110,27 @@ export default function AdminPage() {
       await fetchDatabases()
     } catch (error: any) {
       toast.error(error.message)
+    }
+  }
+
+  const handleRecalculateStats = async () => {
+    setRecalculatingStats(true)
+    try {
+      const response = await fetch('/api/admin/recalculate-stats', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to recalculate stats')
+      }
+
+      const data = await response.json()
+      toast.success(`Successfully recalculated stats for ${data.updated} versions`)
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setRecalculatingStats(false)
     }
   }
 
@@ -259,6 +281,34 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Maintenance Tools */}
+      <div className="rounded-lg border bg-white shadow-sm">
+        <div className="border-b px-6 py-4">
+          <h2 className="text-lg font-semibold text-gray-900">Maintenance Tools</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Administrative tools for maintaining data integrity
+          </p>
+        </div>
+        <div className="px-6 py-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="font-medium text-gray-900">Recalculate Version Statistics</h3>
+              <p className="mt-1 text-sm text-gray-600">
+                Recalculates file counts and total sizes for all package versions.
+                Use this if you notice incorrect file counts or sizes.
+              </p>
+            </div>
+            <Button
+              onClick={handleRecalculateStats}
+              disabled={recalculatingStats}
+              variant="outline"
+            >
+              {recalculatingStats ? 'Recalculating...' : 'Recalculate Stats'}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Provision Modal */}

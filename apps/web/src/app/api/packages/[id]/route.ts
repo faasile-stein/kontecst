@@ -73,7 +73,7 @@ export async function PATCH(
     // Check if user owns the package
     const { data: pkg } = await supabase
       .from('packages')
-      .select('owner_id')
+      .select('owner_id, name, organization_id')
       .eq('id', params.id)
       .single()
 
@@ -92,6 +92,25 @@ export async function PATCH(
       .single()
 
     if (error) throw error
+
+    // Log audit event
+    try {
+      await supabase.rpc('log_audit_event', {
+        p_event_type: 'package_updated',
+        p_actor_id: user.id,
+        p_organization_id: pkg.organization_id || null,
+        p_resource_type: 'package',
+        p_resource_id: params.id,
+        p_resource_name: pkg.name,
+        p_changes: { updates: validated },
+        p_metadata: null,
+        p_ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                      request.headers.get('x-real-ip') || null,
+        p_user_agent: request.headers.get('user-agent') || null,
+      })
+    } catch (auditError) {
+      console.error('Failed to log audit event:', auditError)
+    }
 
     return NextResponse.json(data)
   } catch (error: any) {
@@ -120,7 +139,7 @@ export async function DELETE(
     // Check if user owns the package
     const { data: pkg } = await supabase
       .from('packages')
-      .select('owner_id')
+      .select('owner_id, name, organization_id')
       .eq('id', params.id)
       .single()
 
@@ -131,6 +150,25 @@ export async function DELETE(
     const { error } = await supabase.from('packages').delete().eq('id', params.id)
 
     if (error) throw error
+
+    // Log audit event
+    try {
+      await supabase.rpc('log_audit_event', {
+        p_event_type: 'package_deleted',
+        p_actor_id: user.id,
+        p_organization_id: pkg.organization_id || null,
+        p_resource_type: 'package',
+        p_resource_id: params.id,
+        p_resource_name: pkg.name,
+        p_changes: null,
+        p_metadata: null,
+        p_ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                      request.headers.get('x-real-ip') || null,
+        p_user_agent: request.headers.get('user-agent') || null,
+      })
+    } catch (auditError) {
+      console.error('Failed to log audit event:', auditError)
+    }
 
     return NextResponse.json({ success: true }, { status: 204 })
   } catch (error: any) {
