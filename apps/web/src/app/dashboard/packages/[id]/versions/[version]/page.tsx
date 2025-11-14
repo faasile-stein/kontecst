@@ -6,6 +6,8 @@ import { ArrowLeft, FileText, GitCompare, Lock } from 'lucide-react'
 import { DownloadButton } from '@/components/version/download-button'
 import { VersionFilesSection } from '@/components/version/version-files-section'
 import { LockVersionButton } from '@/components/version/lock-version-button'
+import { CopyLinkButton } from '@/components/ui/copy-link-button'
+import { headers } from 'next/headers'
 
 export default async function VersionDetailPage({
   params,
@@ -17,7 +19,7 @@ export default async function VersionDetailPage({
   // Get package info
   const { data: pkg } = await supabase
     .from('packages')
-    .select('id, name, slug')
+    .select('id, name, slug, visibility')
     .eq('id', params.id)
     .single()
 
@@ -43,6 +45,14 @@ export default async function VersionDetailPage({
     .select('id, filename, path, content, size_bytes, token_count')
     .eq('package_version_id', version.id)
     .order('path', { ascending: true })
+
+  // Construct public URL if package is public
+  const headersList = await headers()
+  const host = headersList.get('host') || 'localhost:3000'
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+  const publicUrl = pkg.visibility === 'public'
+    ? `${protocol}://${host}/marketplace/${pkg.slug}`
+    : null
 
   return (
     <div>
@@ -82,6 +92,13 @@ export default async function VersionDetailPage({
           </div>
 
           <div className="flex space-x-2">
+            {publicUrl && (
+              <CopyLinkButton
+                url={publicUrl}
+                label="Share"
+                size="sm"
+              />
+            )}
             <LockVersionButton
               packageId={params.id}
               versionId={version.id}
@@ -149,7 +166,15 @@ export default async function VersionDetailPage({
         )}
       </div>
 
-      <VersionFilesSection files={files || []} />
+      <VersionFilesSection
+        files={files || []}
+        packageId={pkg.id}
+        packageSlug={pkg.slug}
+        versionId={version.id}
+        isPublic={pkg.visibility === 'public'}
+        isPublished={version.is_published}
+        baseUrl={publicUrl || ''}
+      />
     </div>
   )
 }
