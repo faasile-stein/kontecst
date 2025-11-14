@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Lock, LockOpen } from 'lucide-react'
+import { Lock, Unlock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface LockVersionButtonProps {
@@ -61,7 +61,7 @@ export function LockVersionButton({
           </>
         ) : isLocked ? (
           <>
-            <LockOpen className="mr-2 h-4 w-4" />
+            <Unlock className="mr-2 h-4 w-4" />
             Unlock
           </>
         ) : (

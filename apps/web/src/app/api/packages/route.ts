@@ -98,6 +98,26 @@ export async function POST(request: Request) {
 
     if (error) throw error
 
+    // Log audit event
+    try {
+      await supabase.rpc('log_audit_event', {
+        p_event_type: 'package_created',
+        p_actor_id: user.id,
+        p_organization_id: validated.organization_id || null,
+        p_resource_type: 'package',
+        p_resource_id: data.id,
+        p_resource_name: data.name,
+        p_changes: { package: data },
+        p_metadata: null,
+        p_ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                      request.headers.get('x-real-ip') || null,
+        p_user_agent: request.headers.get('user-agent') || null,
+      })
+    } catch (auditError) {
+      console.error('Failed to log audit event:', auditError)
+      // Don't fail the request if audit logging fails
+    }
+
     return NextResponse.json(data, { status: 201 })
   } catch (error: any) {
     if (error instanceof z.ZodError) {
