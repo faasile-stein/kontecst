@@ -15,7 +15,12 @@
     "clean": "pnpm --parallel --filter \"./apps/*\" clean && rm -rf node_modules",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "docker:logs": "docker compose logs -f",
+    "migrations:sync": "./scripts/sync-migrations.sh",
+    "migrations:new": "supabase migration new",
+    "migrations:apply": "supabase db push --local",
+    "migrations:status": "supabase db version --local",
+    "db:reset": "supabase db reset"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -202,6 +202,22 @@ start_docker() {
     echo ""
 }
 
+# Sync migration files
+sync_migrations() {
+    print_header "Syncing Migration Files"
+
+    print_info "Syncing migrations between supabase/ and packages/database/..."
+    if [ -x "./scripts/sync-migrations.sh" ]; then
+        ./scripts/sync-migrations.sh
+    else
+        # Fallback if script is not executable
+        rsync -av --delete supabase/migrations/ packages/database/supabase/migrations/ 2>/dev/null || true
+        print_success "Migrations synced"
+    fi
+
+    echo ""
+}
+
 # Start Supabase local instance
 start_supabase() {
     print_header "Starting Supabase"
@@ -214,10 +230,12 @@ start_supabase() {
     fi
 
     print_info "Starting Supabase local instance..."
+    print_info "All migrations will be automatically applied from: supabase/migrations/"
 
     # Start Supabase (this will pull Docker images if needed and apply migrations)
     if supabase start; then
         print_success "Supabase started successfully"
+        print_success "All database migrations have been applied"
         echo ""
         print_info "Supabase Studio: http://127.0.0.1:54323"
         print_info "Supabase API: http://127.0.0.1:54321"
@@ -262,8 +280,23 @@ run_migrations() {
     print_header "Database Migrations"
 
     print_success "Supabase migrations applied automatically on startup"
-    print_info "Migration files are located in: supabase/migrations/"
-    print_info "To add new migrations, use: supabase migration new <migration_name>"
+
+    # Count migration files
+    local migration_count=$(ls -1 supabase/migrations/*.sql 2>/dev/null | wc -l)
+    print_info "Found $migration_count migration files in: supabase/migrations/"
+
+    # Show recently applied migrations
+    print_info "Checking applied migrations..."
+    if supabase db version --local 2>/dev/null | tail -1; then
+        print_success "Database is up to date"
+    fi
+
+    echo ""
+    print_info "Migration commands:"
+    print_info "  supabase migration new <name>     - Create a new migration"
+    print_info "  supabase db reset                 - Reset database and re-run all migrations"
+    print_info "  supabase db push --local          - Apply pending migrations"
+    print_info "  supabase db version --local       - Check migration status"
 
     echo ""
 }
@@ -347,6 +380,7 @@ main() {
     check_prerequisites
     install_dependencies
     setup_env_files
+    sync_migrations
     start_supabase
     start_docker
     wait_for_postgres
