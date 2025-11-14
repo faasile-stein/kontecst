@@ -12,8 +12,8 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [packageData, setPackageData] = useState<any>(null)
   const [selectedVersion, setSelectedVersion] = useState<string>('')
-  const [fileName, setFileName] = useState<string>('')
-  const [filePath, setFilePath] = useState<string>('')
+  const [fileName, setFileName] = useState<string>('README.md')
+  const [filePath, setFilePath] = useState<string>('docs/README.md')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -30,9 +30,12 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
       const data = await response.json()
       setPackageData(data)
 
-      // Select the first version by default
+      // Select the latest version by default (sort by created_at descending)
       if (data.package_versions && data.package_versions.length > 0) {
-        setSelectedVersion(data.package_versions[0].id)
+        const sortedVersions = [...data.package_versions].sort((a: any, b: any) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        })
+        setSelectedVersion(sortedVersions[0].id)
       }
     } catch (err: any) {
       setError(err.message)

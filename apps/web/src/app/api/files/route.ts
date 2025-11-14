@@ -107,11 +107,17 @@ export async function POST(request: Request) {
     if (error) throw error
 
     // Update package version file count and size
-    await supabase.rpc('increment_version_stats', {
+    const { error: statsError } = await supabase.rpc('increment_version_stats', {
       version_id: packageVersionId,
       file_count: 1,
       size_bytes: file.size,
     })
+
+    if (statsError) {
+      console.error('Failed to update version stats:', statsError)
+      // Note: With the new trigger-based system, this RPC call is redundant
+      // but kept for backward compatibility
+    }
 
     return NextResponse.json(data, { status: 201 })
   } catch (error: any) {

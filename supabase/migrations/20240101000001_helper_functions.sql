@@ -38,8 +38,8 @@ AS $$
 BEGIN
   UPDATE package_versions
   SET
-    file_count = package_versions.file_count + increment_version_stats.file_count,
-    total_size_bytes = package_versions.total_size_bytes + increment_version_stats.size_bytes
+    file_count = COALESCE(package_versions.file_count, 0) + increment_version_stats.file_count,
+    total_size_bytes = COALESCE(package_versions.total_size_bytes, 0) + increment_version_stats.size_bytes
   WHERE id = version_id;
 END;
 $$;
@@ -56,8 +56,8 @@ AS $$
 BEGIN
   UPDATE package_versions
   SET
-    file_count = GREATEST(0, package_versions.file_count - decrement_version_stats.file_count),
-    total_size_bytes = GREATEST(0, package_versions.total_size_bytes - decrement_version_stats.size_bytes)
+    file_count = GREATEST(0, COALESCE(package_versions.file_count, 0) - decrement_version_stats.file_count),
+    total_size_bytes = GREATEST(0, COALESCE(package_versions.total_size_bytes, 0) - decrement_version_stats.size_bytes)
   WHERE id = version_id;
 END;
 $$;

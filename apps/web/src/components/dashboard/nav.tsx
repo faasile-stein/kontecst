@@ -35,7 +35,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Packages', href: '/dashboard/packages', icon: Package },
   { name: 'Files', href: '/dashboard/files', icon: FileText },
-  { name: 'API Docs', href: '/dashboard/api-docs', icon: BookOpen },
+  { name: 'API Docs', href: '/api-docs', icon: BookOpen },
   { name: 'Search', href: '/dashboard/search', icon: Search },
   { name: 'GitHub', href: '/dashboard/github', icon: Github },
   { name: 'Reviews', href: '/dashboard/reviews', icon: ClipboardCheck },
