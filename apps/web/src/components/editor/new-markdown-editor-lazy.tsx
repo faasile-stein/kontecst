@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 
 // Lazy load the markdown editor with a loading skeleton
 export const NewMarkdownEditorLazy = dynamic(
-  () => import('./new-markdown-editor').then((mod) => ({ default: mod.NewMarkdownEditor })),
+  () => import(/* webpackChunkName: "new-markdown-editor" */ './new-markdown-editor').then((mod) => ({ default: mod.NewMarkdownEditor })),
   {
     loading: () => (
       <div className="flex h-full items-center justify-center bg-white">
