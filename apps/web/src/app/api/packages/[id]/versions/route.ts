@@ -6,6 +6,7 @@ const CreateVersionSchema = z.object({
   version: z.string().regex(/^\d+\.\d+\.\d+$/, 'Must be valid semver (e.g., 1.0.0)'),
   description: z.string().optional(),
   changelog: z.string().optional(),
+  copyFromVersion: z.string().optional(), // Version number to copy files from
 })
 
 export async function GET(
@@ -94,6 +95,48 @@ export async function POST(
       .single()
 
     if (error) throw error
+
+    // Copy files from previous version if requested
+    if (validated.copyFromVersion && data) {
+      const { data: previousVersion } = await supabase
+        .from('package_versions')
+        .select('id')
+        .eq('package_id', params.id)
+        .eq('version', validated.copyFromVersion)
+        .single()
+
+      if (previousVersion) {
+        // Get all files from the previous version
+        const { data: filesToCopy } = await supabase
+          .from('files')
+          .select('filename, path, content, content_hash, size_bytes, mime_type, storage_path')
+          .eq('package_version_id', previousVersion.id)
+
+        if (filesToCopy && filesToCopy.length > 0) {
+          // Copy files to the new version
+          const newFiles = filesToCopy.map((file) => ({
+            ...file,
+            package_version_id: data.id,
+          }))
+
+          const { error: copyError } = await supabase
+            .from('files')
+            .insert(newFiles)
+
+          if (copyError) {
+            console.error('Error copying files:', copyError)
+          } else {
+            // Update version stats
+            const totalSize = filesToCopy.reduce((sum, f) => sum + f.size_bytes, 0)
+            await supabase.rpc('increment_version_stats', {
+              version_id: data.id,
+              file_count: filesToCopy.length,
+              size_bytes: totalSize,
+            })
+          }
+        }
+      }
+    }
 
     return NextResponse.json(data, { status: 201 })
   } catch (error: any) {
