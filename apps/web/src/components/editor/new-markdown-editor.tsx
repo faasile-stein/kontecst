@@ -35,6 +35,7 @@ export function NewMarkdownEditor({
   const [aiAssisting, setAiAssisting] = useState(false)
   const [markdownContent, setMarkdownContent] = useState(initialContent)
   const [editorKey, setEditorKey] = useState(0)
+  const [isEditorReady, setIsEditorReady] = useState(false)
 
   // Refs to track content state
   const lastSavedContentRef = useRef(initialContent)
@@ -47,6 +48,9 @@ export function NewMarkdownEditor({
     if (editorRef.current) {
       return // Editor already created
     }
+
+    // Reset ready state when creating new editor
+    setIsEditorReady(false)
 
     const editor = new MarkdownEditor({
       content: initialContent,
@@ -82,6 +86,8 @@ export function NewMarkdownEditor({
     })
 
     editorRef.current = editor
+    // Set editor as ready after initialization
+    setIsEditorReady(true)
 
     // Cleanup on unmount
     return () => {
@@ -89,6 +95,7 @@ export function NewMarkdownEditor({
         editorRef.current.destroy()
         editorRef.current = null
       }
+      setIsEditorReady(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorKey]) // initialContent intentionally excluded - we don't want to recreate the editor
@@ -194,7 +201,7 @@ export function NewMarkdownEditor({
     }
   }, [editor])
 
-  if (!editor) {
+  if (!editor || !isEditorReady) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
