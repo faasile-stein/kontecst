@@ -268,6 +268,22 @@ run_migrations() {
     echo ""
 }
 
+# Clean web app build
+clean_web_build() {
+    print_header "Cleaning Web App Build"
+
+    print_info "Removing .next directory to ensure clean build..."
+
+    if [ -d "apps/web/.next" ]; then
+        rm -rf apps/web/.next
+        print_success "Web app .next directory removed"
+    else
+        print_info "No .next directory found (already clean)"
+    fi
+
+    echo ""
+}
+
 # Display test credentials
 display_test_credentials() {
     print_header "Test User Credentials"
@@ -335,6 +351,7 @@ main() {
     start_docker
     wait_for_postgres
     run_migrations
+    clean_web_build
     display_test_credentials
     start_dev_servers
 }
