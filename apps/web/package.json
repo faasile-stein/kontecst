@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
     "clean": "rm -rf .next",
     "clean:cache": "rm -rf .next/cache",
     "dev:clean": "npm run clean && npm run dev"
@@ -37,6 +40,7 @@
     "react-markdown": "^9.0.1",
     "react-simplemde-editor": "^5.2.0",
     "sonner": "^2.0.7",
+    "swagger-ui-react": "^5.11.0",
     "tailwind-merge": "^2.2.1",
     "tesseract.js": "^6.0.1",
     "tiptap-markdown": "^0.6.1",
@@ -47,11 +51,16 @@
     "@types/node": "^20.11.16",
     "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
+    "@types/swagger-ui-react": "^4.18.3",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/ui": "^1.2.2",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
+    "node-mocks-http": "^1.14.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
   }
 }
