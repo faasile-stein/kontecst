@@ -16,7 +16,9 @@ export default function NewVersionPage({ params }: { params: { id: string } }) {
     version: '',
     description: '',
     changelog: '',
+    copyFromVersion: '',
   })
+  const [copyFiles, setCopyFiles] = useState(false)
 
   useEffect(() => {
     fetchPackageData()
@@ -34,7 +36,11 @@ export default function NewVersionPage({ params }: { params: { id: string } }) {
       if (data.package_versions && data.package_versions.length > 0) {
         const latestVersion = data.package_versions[0].version
         const [major, minor, patch] = latestVersion.split('.').map(Number)
-        setFormData({ ...formData, version: `${major}.${minor}.${patch + 1}` })
+        setFormData({
+          ...formData,
+          version: `${major}.${minor}.${patch + 1}`,
+          copyFromVersion: latestVersion
+        })
       } else {
         setFormData({ ...formData, version: '1.0.0' })
       }
@@ -51,10 +57,17 @@ export default function NewVersionPage({ params }: { params: { id: string } }) {
     setLoading(true)
 
     try {
+      const payload = {
+        version: formData.version,
+        description: formData.description,
+        changelog: formData.changelog,
+        ...(copyFiles && formData.copyFromVersion && { copyFromVersion: formData.copyFromVersion })
+      }
+
       const response = await fetch(`/api/packages/${params.id}/versions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
 
       const data = await response.json()
@@ -169,6 +182,52 @@ export default function NewVersionPage({ params }: { params: { id: string } }) {
               List of changes, improvements, or bug fixes in this version
             </p>
           </div>
+
+          {packageData.package_versions && packageData.package_versions.length > 0 && (
+            <div className="space-y-3 rounded-md border border-gray-200 p-4">
+              <div className="flex items-center">
+                <input
+                  id="copyFiles"
+                  type="checkbox"
+                  checked={copyFiles}
+                  onChange={(e) => setCopyFiles(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label htmlFor="copyFiles" className="ml-2 block text-sm font-medium text-gray-700">
+                  Copy files from previous version
+                </label>
+              </div>
+
+              {copyFiles && (
+                <div>
+                  <label
+                    htmlFor="copyFromVersion"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Select version to copy from
+                  </label>
+                  <select
+                    id="copyFromVersion"
+                    value={formData.copyFromVersion}
+                    onChange={(e) =>
+                      setFormData({ ...formData, copyFromVersion: e.target.value })
+                    }
+                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                  >
+                    <option value="">Select a version...</option>
+                    {packageData.package_versions.map((v: any) => (
+                      <option key={v.id} value={v.version}>
+                        v{v.version} - {v.file_count} files
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    All files from the selected version will be copied to the new version
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="rounded-md bg-blue-50 p-4">
             <p className="text-sm text-blue-800">

@@ -47,12 +47,20 @@ export async function POST(request: Request) {
     // Get package version info
     const { data: version } = await supabase
       .from('package_versions')
-      .select('package_id, version, packages(owner_id, slug)')
+      .select('package_id, version, is_locked, packages(owner_id, slug)')
       .eq('id', packageVersionId)
       .single()
 
     if (!version) {
       return NextResponse.json({ error: 'Package version not found' }, { status: 404 })
+    }
+
+    // Check if version is locked
+    if (version.is_locked) {
+      return NextResponse.json(
+        { error: 'Cannot upload files to a locked version' },
+        { status: 403 }
+      )
     }
 
     // Check if user owns the package

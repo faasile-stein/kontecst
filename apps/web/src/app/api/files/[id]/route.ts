@@ -88,6 +88,7 @@ export async function PATCH(
         package_versions(
           package_id,
           version,
+          is_locked,
           packages(owner_id, slug)
         )
       `)
@@ -98,8 +99,16 @@ export async function PATCH(
       return NextResponse.json({ error: 'File not found' }, { status: 404 })
     }
 
-    // Check if user owns the package
+    // Check if version is locked
     const version = file.package_versions as any
+    if (version.is_locked) {
+      return NextResponse.json(
+        { error: 'Cannot edit files in a locked version' },
+        { status: 403 }
+      )
+    }
+
+    // Check if user owns the package
     const packageData = version.packages as any
     if (packageData.owner_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -154,6 +163,7 @@ export async function DELETE(
         package_versions(
           package_id,
           version,
+          is_locked,
           packages(owner_id, slug)
         )
       `)
@@ -164,8 +174,16 @@ export async function DELETE(
       return NextResponse.json({ error: 'File not found' }, { status: 404 })
     }
 
-    // Check if user owns the package
+    // Check if version is locked
     const version = file.package_versions as any
+    if (version.is_locked) {
+      return NextResponse.json(
+        { error: 'Cannot delete files from a locked version' },
+        { status: 403 }
+      )
+    }
+
+    // Check if user owns the package
     const packageData = version.packages as any
     if (packageData.owner_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

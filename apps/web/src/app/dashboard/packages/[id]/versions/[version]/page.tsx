@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, FileText, GitCompare } from 'lucide-react'
+import { ArrowLeft, FileText, GitCompare, Lock } from 'lucide-react'
 import { DownloadButton } from '@/components/version/download-button'
+import { VersionFilesSection } from '@/components/version/version-files-section'
+import { LockVersionButton } from '@/components/version/lock-version-button'
 
 export default async function VersionDetailPage({
   params,
@@ -66,6 +68,12 @@ export default async function VersionDetailPage({
                   Published
                 </span>
               )}
+              {version.is_locked && (
+                <span className="flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+                  <Lock className="mr-1 h-3 w-3" />
+                  Locked
+                </span>
+              )}
             </div>
             <p className="mt-1 text-sm text-gray-600">{pkg.name}</p>
             {version.description && (
@@ -74,6 +82,12 @@ export default async function VersionDetailPage({
           </div>
 
           <div className="flex space-x-2">
+            <LockVersionButton
+              packageId={params.id}
+              versionId={version.id}
+              isLocked={version.is_locked}
+              lockedAt={version.locked_at}
+            />
             <DownloadButton
               packageName={pkg.slug}
               version={version.version}
@@ -127,43 +141,7 @@ export default async function VersionDetailPage({
         )}
       </div>
 
-      <div className="mt-8 rounded-lg border bg-white shadow-sm">
-        <div className="border-b px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Files</h2>
-        </div>
-
-        <div className="divide-y">
-          {files && files.length > 0 ? (
-            files.map((file) => (
-              <div key={file.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900">{file.filename}</p>
-                      <p className="text-sm text-gray-500">{file.path}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span>{(file.size_bytes / 1024).toFixed(1)} KB</span>
-                    <Button variant="ghost" size="sm">
-                      View
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="px-6 py-12 text-center">
-              <FileText className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No files</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                This version doesn't have any files yet
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <VersionFilesSection files={files || []} />
     </div>
   )
 }
