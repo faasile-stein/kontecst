@@ -40,7 +40,7 @@ export default async function VersionDetailPage({
   // Get files for this version
   const { data: files } = await supabase
     .from('files')
-    .select('id, filename, path, content, size_bytes')
+    .select('id, filename, path, content, size_bytes, token_count')
     .eq('package_version_id', version.id)
     .order('path', { ascending: true })
 
@@ -102,7 +102,7 @@ export default async function VersionDetailPage({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-4 border-t pt-6">
+        <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-6 sm:grid-cols-4">
           <div>
             <p className="text-sm text-gray-600">Files</p>
             <p className="text-2xl font-semibold text-gray-900">
@@ -115,6 +115,14 @@ export default async function VersionDetailPage({
               {version.total_size_bytes
                 ? `${(version.total_size_bytes / 1024).toFixed(1)} KB`
                 : '0 KB'}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Tokens</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {version.total_token_count
+                ? `~${version.total_token_count.toLocaleString()}`
+                : '~0'}
             </p>
           </div>
           <div>

@@ -10,6 +10,7 @@ interface File {
   filename: string
   path: string
   size_bytes: number
+  token_count?: number
 }
 
 interface VersionFilesSectionProps {
@@ -50,7 +51,14 @@ export function VersionFilesSection({ files }: VersionFilesSectionProps) {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span>{(file.size_bytes / 1024).toFixed(1)} KB</span>
+                    <div className="flex flex-col items-end">
+                      <span>{(file.size_bytes / 1024).toFixed(1)} KB</span>
+                      {file.token_count && (
+                        <span className="text-xs text-gray-400">
+                          ~{file.token_count.toLocaleString()} tokens
+                        </span>
+                      )}
+                    </div>
                     <Button
                       variant="ghost"
                       size="sm"

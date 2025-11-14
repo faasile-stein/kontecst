@@ -1,8 +1,21 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
+import { encode } from 'gpt-3-encoder'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+
+// Calculate token count from text content
+function calculateTokenCount(text: string): number {
+  try {
+    const tokens = encode(text)
+    return tokens.length
+  } catch (error) {
+    // Fallback to character-based estimation if encoding fails
+    console.warn('Token encoding failed, using character estimation:', error)
+    return Math.max(1, Math.floor(text.length / 4))
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -69,11 +82,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Read file content and calculate hash
+    // Read file content and calculate hash and token count
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     const content = buffer.toString('utf-8')
     const contentHash = createHash('sha256').update(buffer).digest('hex')
+    const tokenCount = calculateTokenCount(content)
 
     // Upload to file proxy service
     const proxyFormData = new FormData()
@@ -98,6 +112,7 @@ export async function POST(request: Request) {
         content: content,
         content_hash: contentHash,
         size_bytes: file.size,
+        token_count: tokenCount,
         mime_type: file.type || 'text/markdown',
         storage_path: storagePath,
       })
