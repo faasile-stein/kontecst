@@ -1,6 +1,19 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
+import { encode } from 'gpt-3-encoder'
+
+// Calculate token count from text content
+function calculateTokenCount(text: string): number {
+  try {
+    const tokens = encode(text)
+    return tokens.length
+  } catch (error) {
+    // Fallback to character-based estimation if encoding fails
+    console.warn('Token encoding failed, using character estimation:', error)
+    return Math.max(1, Math.floor(text.length / 4))
+  }
+}
 
 export async function GET(
   request: Request,
@@ -114,9 +127,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Calculate new content hash
+    // Calculate new content hash, size, and token count
     const contentHash = createHash('sha256').update(content).digest('hex')
     const sizeBytes = Buffer.byteLength(content, 'utf8')
+    const tokenCount = calculateTokenCount(content)
 
     // Update file metadata and content
     const { data, error } = await supabase
@@ -125,6 +139,7 @@ export async function PATCH(
         content: content,
         content_hash: contentHash,
         size_bytes: sizeBytes,
+        token_count: tokenCount,
         updated_at: new Date().toISOString(),
       })
       .eq('id', params.id)
