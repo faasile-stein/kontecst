@@ -1,10 +1,6 @@
 import { createWorker } from 'tesseract.js'
 import { PDFDocument } from 'pdf-lib'
 
-// Using require for pdf-parse due to module resolution issues
-// pdf-parse is a CommonJS module that exports the function directly
-const pdfParse = require('pdf-parse')
-
 interface PdfProcessingResult {
   text: string
   pageCount: number
@@ -26,6 +22,8 @@ interface PdfProcessingResult {
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<PdfProcessingResult> {
   try {
+    // Dynamic import for pdf-parse to work with Next.js app directory
+    const pdfParse = (await import('pdf-parse')).default
     const data = await pdfParse(buffer)
 
     return {
