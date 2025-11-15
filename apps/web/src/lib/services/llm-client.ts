@@ -3,7 +3,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 interface LLMProvider {
   id: string
   name: string
-  type: 'openai' | 'openai_compatible' | 'anthropic' | 'local'
+  type: 'openai' | 'openai_compatible' | 'anthropic' | 'local' | 'test'
   api_endpoint: string
   api_key: string | null
   model_name: string
@@ -163,6 +163,27 @@ async function callAnthropic(
 }
 
 /**
+ * Call test provider - returns a mock response for testing
+ */
+async function callTestProvider(
+  provider: LLMProvider,
+  request: ChatCompletionRequest
+): Promise<ChatCompletionResponse> {
+  // Test provider returns a mock response for testing purposes
+  const lastMessage = request.messages[request.messages.length - 1]
+  const mockResponse = `Test provider response for: "${lastMessage.content.substring(0, 50)}..."`
+
+  return {
+    content: mockResponse,
+    usage: {
+      promptTokens: 10,
+      completionTokens: 20,
+      totalTokens: 30,
+    },
+  }
+}
+
+/**
  * Send a chat completion request using the configured LLM provider
  */
 export async function sendChatCompletion(
@@ -185,6 +206,9 @@ export async function sendChatCompletion(
 
     case 'anthropic':
       return callAnthropic(provider, request)
+
+    case 'test':
+      return callTestProvider(provider, request)
 
     default:
       throw new Error(`Unsupported LLM provider type: ${provider.type}`)
