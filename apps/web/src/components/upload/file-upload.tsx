@@ -94,8 +94,20 @@ export function FileUpload({ packageVersionId, onUploadComplete }: FileUploadPro
         })
 
         if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || 'Upload failed')
+          let errorMessage = 'Upload failed'
+          try {
+            const contentType = response.headers.get('content-type')
+            if (contentType && contentType.includes('application/json')) {
+              const error = await response.json()
+              errorMessage = error.error || errorMessage
+            } else {
+              const text = await response.text()
+              errorMessage = text || `Upload failed with status ${response.status}`
+            }
+          } catch (parseError) {
+            errorMessage = `Upload failed with status ${response.status}`
+          }
+          throw new Error(errorMessage)
         }
 
         // Update status to success

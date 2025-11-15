@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(arrayBuffer)
 
     console.log(`Processing PDF: ${file.name} (${file.size} bytes)`)
-    const { markdown, metadata } = await processPdfToMarkdown(buffer, purpose)
+    const { markdown, metadata } = await processPdfToMarkdown(buffer, purpose, user.id)
     console.log(`Generated markdown: ${markdown.length} characters`)
 
     // Ensure path ends with .md
