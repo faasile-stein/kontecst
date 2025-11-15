@@ -109,74 +109,23 @@ export async function extractTextWithOcr(buffer: Buffer): Promise<PdfProcessingR
 
 /**
  * Digest PDF content into markdown using AI
+ * Note: This function now requires userId to be passed from the route handler
+ * It uses the configured LLM provider instead of hardcoded OpenAI
  */
 export async function digestPdfToMarkdown(
   pdfText: string,
   purpose: string,
-  metadata: PdfProcessingResult['metadata']
+  metadata: PdfProcessingResult['metadata'],
+  userId: string
 ): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY
+  // Import the LLM client dynamically to avoid circular dependencies
+  const { digestPdfToMarkdownWithLLM } = await import('./llm-client')
 
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured')
-  }
-
-  // Create a comprehensive prompt for the AI
-  const systemPrompt = `You are an expert at analyzing and summarizing documents. Your task is to digest the provided PDF content into a well-structured markdown document based on the user's specified purpose.
-
-Guidelines:
-- Create clear, hierarchical headings using markdown (#, ##, ###)
-- Extract and organize key information relevant to the specified purpose
-- Maintain factual accuracy - don't add information not present in the source
-- Use bullet points, numbered lists, and tables where appropriate
-- Include code blocks if the PDF contains code examples
-- Preserve important technical details, numbers, and specific terminology
-- Create a logical flow that makes the content easy to understand
-- If the purpose specifies a particular format or structure, follow it`
-
-  const userPrompt = `Please digest the following PDF content into a markdown document.
-
-**Purpose:** ${purpose}
-
-**PDF Metadata:**
-- Title: ${metadata.title || 'N/A'}
-- Author: ${metadata.author || 'N/A'}
-- Subject: ${metadata.subject || 'N/A'}
-
-**PDF Content:**
-${pdfText}
-
-Please create a comprehensive markdown document based on the purpose specified above.`
-
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o', // Using GPT-4 for better understanding and formatting
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.3, // Lower temperature for more focused output
-        max_tokens: 4096,
-      }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`)
-    }
-
-    const data = await response.json()
-    return data.choices[0].message.content
-  } catch (error) {
-    console.error('Error digesting PDF to markdown:', error)
-    throw error
-  }
+  return digestPdfToMarkdownWithLLM(userId, pdfText, purpose, {
+    title: metadata.title,
+    author: metadata.author,
+    subject: metadata.subject,
+  })
 }
 
 /**
@@ -184,7 +133,8 @@ Please create a comprehensive markdown document based on the purpose specified a
  */
 export async function processPdfToMarkdown(
   buffer: Buffer,
-  purpose: string
+  purpose: string,
+  userId: string
 ): Promise<{ markdown: string; metadata: PdfProcessingResult['metadata'] }> {
   console.log('Starting PDF processing...')
 
@@ -200,7 +150,7 @@ export async function processPdfToMarkdown(
 
   // Digest the content to markdown using AI
   console.log('Digesting content to markdown...')
-  const markdown = await digestPdfToMarkdown(pdfResult.text, purpose, pdfResult.metadata)
+  const markdown = await digestPdfToMarkdown(pdfResult.text, purpose, pdfResult.metadata, userId)
 
   return {
     markdown,

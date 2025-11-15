@@ -24,6 +24,7 @@ import {
   Menu,
   X,
   BookOpen,
+  Cpu,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -44,6 +45,7 @@ const navigation = [
   { name: 'Audit Log', href: '/dashboard/audit', icon: Shield },
   { name: 'SSO', href: '/dashboard/sso', icon: KeyRound },
   { name: 'Admin', href: '/dashboard/admin', icon: Database },
+  { name: 'LLM Providers', href: '/dashboard/admin/llm', icon: Cpu },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

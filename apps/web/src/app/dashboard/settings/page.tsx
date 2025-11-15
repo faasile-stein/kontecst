@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { User, Mail, Building } from 'lucide-react'
+import { LLMProviderSettings } from '@/components/settings/llm-provider-settings'
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
@@ -159,6 +160,18 @@ export default function SettingsPage() {
               </Button>
             </div>
           </form>
+        </div>
+
+        {/* LLM Provider Settings */}
+        <div className="rounded-lg border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900">LLM Provider</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            Choose which LLM provider to use for AI features like PDF processing
+          </p>
+
+          <div className="mt-6">
+            <LLMProviderSettings />
+          </div>
         </div>
 
         {/* Account Information */}
