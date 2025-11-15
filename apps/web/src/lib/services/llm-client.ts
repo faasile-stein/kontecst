@@ -37,8 +37,21 @@ interface ChatCompletionResponse {
  * Falls back to default provider if user has no preference
  */
 export async function getUserLLMProvider(userId: string): Promise<LLMProvider | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error(
+      'Missing Supabase environment variables!\n\n' +
+      'Please ensure the following environment variables are set:\n' +
+      '- NEXT_PUBLIC_SUPABASE_URL\n' +
+      '- SUPABASE_SERVICE_KEY\n\n' +
+      'Create a .env.local file in apps/web/ with these variables.\n' +
+      'See apps/web/.env.example for reference.\n\n' +
+      'Find these values at: https://supabase.com/dashboard/project/_/settings/api'
+    )
+  }
+
   const supabase = createSupabaseClient(supabaseUrl, supabaseServiceKey)
 
   try {
