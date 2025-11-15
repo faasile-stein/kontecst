@@ -22,7 +22,7 @@ interface PdfProcessingResult {
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<PdfProcessingResult> {
   try {
-    // Dynamic import for pdf-parse to work with Next.js app directory
+    // Dynamic import for pdf-parse (externalized in webpack config)
     const pdfParse = (await import('pdf-parse')).default
     const data = await pdfParse(buffer)
 
