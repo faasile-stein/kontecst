@@ -59,8 +59,19 @@ export async function POST(request: Request) {
 
     // Check if user owns the package
     const packageData = version.packages as any
-    if (packageData.owner_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    console.log('Package data:', JSON.stringify(packageData))
+    console.log('User ID:', user.id)
+    console.log('Owner ID:', packageData?.owner_id)
+
+    if (!packageData || packageData.owner_id !== user.id) {
+      return NextResponse.json({
+        error: 'Forbidden',
+        debug: {
+          hasPackageData: !!packageData,
+          ownerId: packageData?.owner_id,
+          userId: user.id
+        }
+      }, { status: 403 })
     }
 
     // Process PDF: extract text, OCR if needed, and digest to markdown
