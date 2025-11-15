@@ -42,7 +42,7 @@ export default async function VersionDetailPage({
   // Get files for this version
   const { data: files } = await supabase
     .from('files')
-    .select('id, filename, path, content, size_bytes, token_count')
+    .select('id, filename, path, content, size_bytes, token_count, uploader:profiles!files_uploaded_by_fkey(id, full_name, email)')
     .eq('package_version_id', version.id)
     .order('path', { ascending: true })
 

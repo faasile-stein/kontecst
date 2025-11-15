@@ -9,6 +9,33 @@ const UpdatePackageSchema = z.object({
   is_archived: z.boolean().optional(),
 })
 
+// Helper function to check if user can manage a package
+async function canManagePackage(
+  supabase: any,
+  userId: string,
+  pkg: { owner_id: string; organization_id: string | null }
+): Promise<boolean> {
+  // Owner can always manage
+  if (pkg.owner_id === userId) {
+    return true
+  }
+
+  // If package has no organization, only owner can manage
+  if (!pkg.organization_id) {
+    return false
+  }
+
+  // Check if user is a member of the package's organization
+  const { data: membership } = await supabase
+    .from('organization_members')
+    .select('id')
+    .eq('organization_id', pkg.organization_id)
+    .eq('user_id', userId)
+    .single()
+
+  return !!membership
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -70,14 +97,19 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user owns the package
+    // Check if user can manage the package
     const { data: pkg } = await supabase
       .from('packages')
       .select('owner_id, name, organization_id')
       .eq('id', params.id)
       .single()
 
-    if (!pkg || pkg.owner_id !== user.id) {
+    if (!pkg) {
+      return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    }
+
+    const canManage = await canManagePackage(supabase, user.id, pkg)
+    if (!canManage) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -136,14 +168,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user owns the package
+    // Check if user can manage the package
     const { data: pkg } = await supabase
       .from('packages')
       .select('owner_id, name, organization_id')
       .eq('id', params.id)
       .single()
 
-    if (!pkg || pkg.owner_id !== user.id) {
+    if (!pkg) {
+      return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    }
+
+    const canManage = await canManagePackage(supabase, user.id, pkg)
+    if (!canManage) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
