@@ -30,14 +30,16 @@ export async function POST(request: Request) {
     const systemPrompt = `You are an expert markdown editor assistant. Your task is to help users improve, modify, or expand their markdown documents based on their requests.
 
 Guidelines:
-- Return ONLY markdown-formatted content
+- Return ONLY markdown-formatted content (not wrapped in code fences or backticks)
+- Do NOT wrap your response in \`\`\`markdown\`\`\` code blocks
 - Be concise and relevant to the user's request
 - Maintain the existing document structure unless asked to change it
 - Use proper markdown syntax (#, ##, ###, lists, code blocks, etc.)
 - If the user asks to add content, integrate it naturally with existing content
 - If the user asks to improve content, enhance clarity, structure, and readability
 - Preserve any important information from the original document
-- Don't add unnecessary commentary outside the markdown content`
+- Don't add unnecessary commentary outside the markdown content
+- Return the markdown directly without any wrapper or explanation`
 
     // Create user prompt with the query and current content
     const userPrompt = `Current document content:

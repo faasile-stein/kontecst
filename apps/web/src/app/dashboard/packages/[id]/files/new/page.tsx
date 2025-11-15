@@ -67,8 +67,15 @@ export default function NewFilePage({ params }: { params: { id: string } }) {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to create file')
+        let errorMessage = 'Failed to create file'
+        try {
+          const error = await response.json()
+          errorMessage = error.error || errorMessage
+        } catch {
+          // If JSON parsing fails, use the status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
       toast.success('File created successfully')

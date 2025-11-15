@@ -215,14 +215,30 @@ export function NewMarkdownEditor({
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to get AI assistance')
+        let errorMessage = 'Failed to get AI assistance'
+        try {
+          const error = await response.json()
+          errorMessage = error.error || errorMessage
+        } catch {
+          // If JSON parsing fails, use the status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
+      let content = data.content
 
-      // Set the new content in the editor
-      editor.commands.setContent(data.content)
+      // Strip markdown code fences if the LLM wrapped the response in them
+      // This handles cases like: ```markdown\n...\n```
+      const markdownFenceRegex = /^```(?:markdown)?\n([\s\S]*?)\n```$/
+      const match = content.match(markdownFenceRegex)
+      if (match) {
+        content = match[1]
+      }
+
+      // Set the new content in the editor using markdown
+      editor.commands.setContent(content)
 
       toast.success('AI assistance applied successfully')
       setAiQuery('') // Clear the query
