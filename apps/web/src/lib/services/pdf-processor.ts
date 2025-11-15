@@ -2,8 +2,8 @@ import { createWorker } from 'tesseract.js'
 import { PDFDocument } from 'pdf-lib'
 
 // Using require for pdf-parse due to module resolution issues
-// Access .default for proper CommonJS interop in Next.js
-const pdfParse = require('pdf-parse').default || require('pdf-parse')
+// pdf-parse is a CommonJS module that exports the function directly
+const pdfParse = require('pdf-parse')
 
 interface PdfProcessingResult {
   text: string
