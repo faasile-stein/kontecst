@@ -6,6 +6,15 @@ import StarterKit from '@tiptap/starter-kit'
 import { createMarkdownEditor } from 'tiptap-markdown'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Eye, Code, Save, Sparkles, Check, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -36,6 +45,8 @@ export function NewMarkdownEditor({
   const [markdownContent, setMarkdownContent] = useState(initialContent)
   const [editorKey, setEditorKey] = useState(0)
   const [isEditorReady, setIsEditorReady] = useState(false)
+  const [aiDialogOpen, setAiDialogOpen] = useState(false)
+  const [aiQuery, setAiQuery] = useState('')
 
   // Refs to track content state
   const lastSavedContentRef = useRef(initialContent)
@@ -179,16 +190,45 @@ export function NewMarkdownEditor({
 
   const handleAiAssist = async () => {
     if (!editor) return
+    setAiDialogOpen(true)
+  }
+
+  const handleAiAssistSubmit = async () => {
+    if (!editor || !aiQuery.trim()) return
 
     setAiAssisting(true)
+    setAiDialogOpen(false)
+
     try {
-      // Placeholder for AI assistance
-      await new Promise((resolve) => setTimeout(resolve, 1000))
       const currentMarkdown = editor.getMarkdown()
-      editor.commands.setContent(
-        currentMarkdown +
-          '\n\n<!-- AI Assistant: Consider adding more detailed examples or explanations -->'
-      )
+
+      // Call the AI assist API
+      const response = await fetch('/api/ai-assist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: aiQuery,
+          fileContent: currentMarkdown,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to get AI assistance')
+      }
+
+      const data = await response.json()
+
+      // Set the new content in the editor
+      editor.commands.setContent(data.content)
+
+      toast.success('AI assistance applied successfully')
+      setAiQuery('') // Clear the query
+    } catch (error) {
+      console.error('AI assist error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to get AI assistance')
     } finally {
       setAiAssisting(false)
     }
@@ -462,6 +502,52 @@ export function NewMarkdownEditor({
           <span className="text-neutral-400">Cmd+S to save</span>
         </div>
       </div>
+
+      {/* AI Assist Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>AI Assist</DialogTitle>
+            <DialogDescription>
+              What would you like to do?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              placeholder="e.g., Add more examples, improve clarity, expand on this topic..."
+              value={aiQuery}
+              onChange={(e) => setAiQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  handleAiAssistSubmit()
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setAiDialogOpen(false)
+                setAiQuery('')
+              }}
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAiAssistSubmit}
+              disabled={!aiQuery.trim()}
+              type="button"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Apply AI Assist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
