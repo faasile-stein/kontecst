@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     // Get package version info
     const { data: version } = await supabase
       .from('package_versions')
-      .select('package_id, version, is_locked, packages(owner_id, slug)')
+      .select('package_id, version, is_locked, packages(owner_id, slug, organization_id)')
       .eq('id', packageVersionId)
       .single()
 
@@ -76,9 +76,23 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if user owns the package
+    // Check if user can manage the package
     const packageData = version.packages as any
-    if (packageData.owner_id !== user.id) {
+    const isOwner = packageData.owner_id === user.id
+
+    // Check if user is a team member (if package has an organization)
+    let isTeamMember = false
+    if (packageData.organization_id) {
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('id')
+        .eq('organization_id', packageData.organization_id)
+        .eq('user_id', user.id)
+        .single()
+      isTeamMember = !!membership
+    }
+
+    if (!isOwner && !isTeamMember) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -115,6 +129,7 @@ export async function POST(request: Request) {
         token_count: tokenCount,
         mime_type: file.type || 'text/markdown',
         storage_path: storagePath,
+        uploaded_by: user.id,
       })
       .select()
       .single()
@@ -165,7 +180,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabase
       .from('files')
-      .select('*')
+      .select('*, uploader:profiles!files_uploaded_by_fkey(id, full_name, email)')
       .eq('package_version_id', packageVersionId)
       .order('created_at', { ascending: false })
 

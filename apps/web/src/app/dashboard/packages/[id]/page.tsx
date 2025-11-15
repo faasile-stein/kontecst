@@ -16,6 +16,7 @@ export default async function PackageDetailPage({
     .select(
       `
       *,
+      owner:profiles!packages_owner_id_fkey(id, full_name, email),
       package_versions (
         id,
         version,
@@ -66,7 +67,10 @@ export default async function PackageDetailPage({
                 {pkg.visibility}
               </span>
               <span className="text-sm text-gray-500">
-                Created {new Date(pkg.created_at).toLocaleDateString()}
+                Created by {(pkg.owner as any)?.full_name || 'Unknown'}
+              </span>
+              <span className="text-sm text-gray-500">
+                {new Date(pkg.created_at).toLocaleDateString()}
               </span>
             </div>
           </div>

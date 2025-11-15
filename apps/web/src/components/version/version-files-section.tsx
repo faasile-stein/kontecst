@@ -13,6 +13,11 @@ interface File {
   size_bytes: number
   token_count?: number
   content?: string
+  uploader?: {
+    id: string
+    full_name: string | null
+    email: string
+  }
 }
 
 interface VersionFilesSectionProps {
@@ -107,6 +112,11 @@ export function VersionFilesSection({
                     <div>
                       <p className="font-medium text-gray-900">{file.filename}</p>
                       <p className="text-sm text-gray-500">{file.path}</p>
+                      {file.uploader && (
+                        <p className="text-xs text-gray-400">
+                          Uploaded by {file.uploader.full_name || file.uploader.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">

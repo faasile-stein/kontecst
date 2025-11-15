@@ -8,7 +8,7 @@ export default async function PackagesPage() {
 
   const { data: packages } = await supabase
     .from('packages')
-    .select('*')
+    .select('*, owner:profiles!packages_owner_id_fkey(id, full_name, email)')
     .order('created_at', { ascending: false })
 
   return (
@@ -55,9 +55,14 @@ export default async function PackagesPage() {
                 <p className="mt-2 text-sm text-gray-500 line-clamp-2">
                   {pkg.description || 'No description'}
                 </p>
-                <p className="mt-4 text-xs text-gray-400">
-                  Created {new Date(pkg.created_at).toLocaleDateString()}
-                </p>
+                <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
+                  <span>
+                    by {(pkg.owner as any)?.full_name || 'Unknown'}
+                  </span>
+                  <span>
+                    {new Date(pkg.created_at).toLocaleDateString()}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

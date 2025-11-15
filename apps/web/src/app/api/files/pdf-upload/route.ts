@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     // Get package version info
     const { data: version } = await supabase
       .from('package_versions')
-      .select('package_id, version, packages(owner_id, slug)')
+      .select('package_id, version, packages(owner_id, slug, organization_id)')
       .eq('id', packageVersionId)
       .single()
 
@@ -57,9 +57,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Package version not found' }, { status: 404 })
     }
 
-    // Check if user owns the package
+    // Check if user can manage the package
     const packageData = version.packages as any
-    if (packageData.owner_id !== user.id) {
+    const isOwner = packageData.owner_id === user.id
+
+    // Check if user is a team member (if package has an organization)
+    let isTeamMember = false
+    if (packageData.organization_id) {
+      const { data: membership } = await supabase
+        .from('organization_members')
+        .select('id')
+        .eq('organization_id', packageData.organization_id)
+        .eq('user_id', user.id)
+        .single()
+      isTeamMember = !!membership
+    }
+
+    if (!isOwner && !isTeamMember) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -103,6 +117,7 @@ ${markdown}`
         size_bytes: Buffer.from(markdownWithMetadata).length,
         mime_type: 'text/markdown',
         storage_path: storagePath,
+        uploaded_by: user.id,
       })
       .select()
       .single()
