@@ -76,7 +76,7 @@ export function FileViewerModal({ fileId, filename, isOpen, onClose }: FileViewe
 
         {/* Footer */}
         <div className="flex justify-end border-t px-6 py-4">
-          <Button onClick={onClose} variant="outline">
+          <Button onClick={onClose} variant="secondary">
             Close
           </Button>
         </div>

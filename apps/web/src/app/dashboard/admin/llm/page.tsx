@@ -271,7 +271,7 @@ export default function AdminLLMPage() {
                   <div className="flex items-center space-x-2">
                     {!provider.is_default && provider.is_enabled && (
                       <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => handleSetDefault(provider)}
                       >
@@ -279,21 +279,21 @@ export default function AdminLLMPage() {
                       </Button>
                     )}
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => handleToggleEnabled(provider)}
                     >
                       {provider.is_enabled ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => openEditModal(provider)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => handleDelete(provider.id)}
                     >
@@ -447,7 +447,7 @@ export default function AdminLLMPage() {
 
             <div className="mt-6 flex justify-end space-x-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setShowModal(false)
                   resetForm()

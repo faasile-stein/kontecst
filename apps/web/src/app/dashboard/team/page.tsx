@@ -273,7 +273,7 @@ export default function TeamPage() {
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-              <Button variant="outline" onClick={() => setShowInviteModal(false)}>
+              <Button variant="secondary" onClick={() => setShowInviteModal(false)}>
                 Cancel
               </Button>
               <Button onClick={handleInvite}>Send Invitation</Button>

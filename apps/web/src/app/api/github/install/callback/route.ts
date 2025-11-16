@@ -147,12 +147,20 @@ export async function GET(request: Request) {
         })
 
       installationId = installation.id
-      installationType =
-        installation.account?.type === 'Organization' ? 'organization' : 'user'
-      accountLogin = installation.account?.login || githubUser.login
-      accountId = installation.account?.id || githubUser.id
-      accountAvatarUrl =
-        installation.account?.avatar_url || githubUser.avatar_url
+      // Type guard for installation.account which can be a union type
+      const account = installation.account
+      if (account && 'login' in account && 'type' in account) {
+        installationType = account.type === 'Organization' ? 'organization' : 'user'
+        accountLogin = account.login
+        accountId = account.id
+        accountAvatarUrl = account.avatar_url
+      } else {
+        // Fallback to githubUser if account doesn't have expected properties
+        installationType = 'user'
+        accountLogin = githubUser.login
+        accountId = githubUser.id
+        accountAvatarUrl = githubUser.avatar_url
+      }
     } catch (error) {
       // If we can't get installation, we'll use the user's info
       // The user can install the app later

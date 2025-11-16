@@ -178,7 +178,7 @@ export function LLMProviderSettings() {
 
       {selectedProviderId && (
         <div className="flex justify-end">
-          <Button variant="outline" onClick={handleUseDefault} disabled={saving}>
+          <Button variant="secondary" onClick={handleUseDefault} disabled={saving}>
             Use Default Provider
           </Button>
         </div>

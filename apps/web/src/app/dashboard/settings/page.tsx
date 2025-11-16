@@ -211,7 +211,7 @@ export default function SettingsPage() {
           </p>
 
           <div className="mt-4">
-            <Button variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
+            <Button variant="secondary" className="border-red-300 text-red-700 hover:bg-red-100">
               Delete Account
             </Button>
           </div>

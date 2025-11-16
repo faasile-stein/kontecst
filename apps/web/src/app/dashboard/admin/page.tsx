@@ -255,7 +255,7 @@ export default function AdminPage() {
                     >
                       {db.status}
                     </span>
-                    <Button variant="outline" size="sm">
+                    <Button variant="secondary" size="sm">
                       <Activity className="mr-2 h-4 w-4" />
                       Monitor
                     </Button>
@@ -303,7 +303,7 @@ export default function AdminPage() {
             <Button
               onClick={handleRecalculateStats}
               disabled={recalculatingStats}
-              variant="outline"
+              variant="secondary"
             >
               {recalculatingStats ? 'Recalculating...' : 'Recalculate Stats'}
             </Button>
@@ -389,7 +389,7 @@ export default function AdminPage() {
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-              <Button variant="outline" onClick={() => setShowProvisionModal(false)}>
+              <Button variant="secondary" onClick={() => setShowProvisionModal(false)}>
                 Cancel
               </Button>
               <Button onClick={handleProvision}>Provision Database</Button>

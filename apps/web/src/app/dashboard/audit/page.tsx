@@ -109,7 +109,7 @@ export default function AuditLogPage() {
           </select>
         </div>
 
-        <Button variant="outline" onClick={fetchAuditLogs}>
+        <Button variant="secondary" onClick={fetchAuditLogs}>
           Refresh
         </Button>
       </div>

@@ -90,7 +90,7 @@ export function VersionFilesSection({
             <h2 className="text-lg font-semibold text-gray-900">Files</h2>
             {showPublicActions && files.length > 0 && (
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleDownloadIndex}
                 disabled={isDownloading}

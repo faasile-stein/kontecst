@@ -237,7 +237,7 @@ export default function NewVersionPage({ params }: { params: { id: string } }) {
 
           <div className="flex justify-end space-x-3 border-t pt-6">
             <Link href={`/dashboard/packages/${params.id}`}>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="secondary">
                 Cancel
               </Button>
             </Link>
