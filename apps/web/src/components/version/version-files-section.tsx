@@ -154,7 +154,7 @@ export function VersionFilesSection({
               <FileText className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No files</h3>
               <p className="mt-1 text-sm text-gray-500">
-                This version doesn't have any files yet
+                This version doesn&apos;t have any files yet
               </p>
             </div>
           )}

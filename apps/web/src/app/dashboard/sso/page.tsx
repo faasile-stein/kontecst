@@ -224,7 +224,7 @@ export default function SSOPage() {
             </h3>
             <p className="mt-1 text-sm text-blue-800">
               Single Sign-On allows your team members to authenticate using your
-              organization's identity provider (SAML, OIDC, OAuth). This feature
+              organization&apos;s identity provider (SAML, OIDC, OAuth). This feature
               requires Enterprise plan.
             </p>
           </div>
