@@ -23,7 +23,8 @@ interface PdfProcessingResult {
 export async function extractTextFromPdf(buffer: Buffer): Promise<PdfProcessingResult> {
   try {
     // Dynamic import for pdf-parse (externalized in webpack config)
-    const pdfParse = (await import('pdf-parse')).default
+    const pdfParseModule = await import('pdf-parse')
+    const pdfParse = pdfParseModule.default || pdfParseModule
     const data = await pdfParse(buffer)
 
     return {
