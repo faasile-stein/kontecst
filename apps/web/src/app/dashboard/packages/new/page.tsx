@@ -157,7 +157,7 @@ export default function NewPackagePage() {
 
           <div className="flex justify-end space-x-3 border-t pt-6">
             <Link href="/dashboard/packages">
-              <Button type="button" variant="outline">
+              <Button type="button" variant="secondary">
                 Cancel
               </Button>
             </Link>

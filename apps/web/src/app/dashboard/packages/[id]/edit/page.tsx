@@ -234,7 +234,7 @@ export default function EditPackagePage({ params }: { params: { id: string } }) 
                 <p className="text-sm text-gray-500">No files yet</p>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   className="mt-2"
                   onClick={handleNewFile}
                 >

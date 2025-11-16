@@ -82,13 +82,13 @@ export default async function PackageDetailPage({
               </Button>
             </Link>
             <Link href={`/dashboard/packages/${pkg.id}/upload`}>
-              <Button variant="outline">
+              <Button variant="secondary">
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Files
               </Button>
             </Link>
             <Link href={`/dashboard/packages/${pkg.id}/settings`}>
-              <Button variant="outline">Settings</Button>
+              <Button variant="secondary">Settings</Button>
             </Link>
           </div>
         </div>
@@ -138,7 +138,7 @@ export default async function PackageDetailPage({
                     </div>
                   </div>
                   <Link href={`/dashboard/packages/${pkg.id}/versions/${version.version}`}>
-                    <Button variant="outline" size="sm">
+                    <Button variant="secondary" size="sm">
                       View
                     </Button>
                   </Link>

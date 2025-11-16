@@ -83,7 +83,7 @@ export default function UploadPage({ params }: { params: { id: string } }) {
             </p>
           </div>
           <Link href={`/dashboard/packages/${params.id}/files/new`}>
-            <Button variant="outline">
+            <Button variant="secondary">
               <FilePlus className="mr-2 h-4 w-4" />
               Create New File
             </Button>

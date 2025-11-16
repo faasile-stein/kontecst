@@ -111,7 +111,7 @@ export default async function VersionDetailPage({
               files={files || []}
             />
             <Link href={`/dashboard/packages/${params.id}/versions/compare`}>
-              <Button variant="outline" size="sm">
+              <Button variant="secondary" size="sm">
                 <GitCompare className="mr-2 h-4 w-4" />
                 Compare
               </Button>
