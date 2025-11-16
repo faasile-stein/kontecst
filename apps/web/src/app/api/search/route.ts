@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { generateEmbedding } from '@/lib/services/llm-client'
 
 const SearchSchema = z.object({
   query: z.string().min(1),
@@ -8,35 +9,6 @@ const SearchSchema = z.object({
   limit: z.number().int().min(1).max(100).default(10),
   threshold: z.number().min(0).max(1).default(0.7),
 })
-
-// Function to generate embeddings using OpenAI
-async function generateEmbedding(text: string): Promise<number[]> {
-  const apiKey = process.env.OPENAI_API_KEY
-
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured')
-  }
-
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
-    }),
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`)
-  }
-
-  const data = await response.json()
-  return data.data[0].embedding
-}
 
 export async function POST(request: Request) {
   try {
@@ -53,8 +25,8 @@ export async function POST(request: Request) {
     const body = await request.json()
     const validated = SearchSchema.parse(body)
 
-    // Generate embedding for the search query
-    const queryEmbedding = await generateEmbedding(validated.query)
+    // Generate embedding for the search query using the user's configured LLM provider
+    const queryEmbedding = await generateEmbedding(user.id, validated.query)
 
     // Convert embedding to PostgreSQL vector format
     const embeddingString = `[${queryEmbedding.join(',')}]`

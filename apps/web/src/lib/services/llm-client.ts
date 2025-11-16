@@ -32,6 +32,14 @@ interface ChatCompletionResponse {
   }
 }
 
+interface EmbeddingResponse {
+  embedding: number[]
+  usage?: {
+    promptTokens: number
+    totalTokens: number
+  }
+}
+
 /**
  * Get the LLM provider for a specific user
  * Falls back to default provider if user has no preference
@@ -226,6 +234,80 @@ export async function sendChatCompletion(
     default:
       throw new Error(`Unsupported LLM provider type: ${provider.type}`)
   }
+}
+
+/**
+ * Generate embeddings using the configured LLM provider
+ */
+export async function generateEmbedding(userId: string, text: string): Promise<number[]> {
+  const provider = await getUserLLMProvider(userId)
+
+  if (!provider) {
+    throw new Error('No LLM provider configured')
+  }
+
+  console.log(`Generating embedding using provider: ${provider.name} (${provider.type})`)
+
+  // Currently only OpenAI and OpenAI-compatible providers support embeddings
+  if (provider.type !== 'openai' && provider.type !== 'openai_compatible' && provider.type !== 'local') {
+    throw new Error(
+      `Provider type '${provider.type}' does not support embeddings. Please configure an OpenAI or OpenAI-compatible provider.`
+    )
+  }
+
+  if (!provider.api_key && provider.type !== 'local') {
+    throw new Error('Provider requires an API key for embedding generation')
+  }
+
+  // Determine the embeddings endpoint
+  let embeddingsEndpoint = provider.api_endpoint
+
+  // For OpenAI, use the standard embeddings endpoint
+  if (provider.type === 'openai') {
+    embeddingsEndpoint = 'https://api.openai.com/v1/embeddings'
+  } else if (provider.type === 'openai_compatible' || provider.type === 'local') {
+    // For OpenAI-compatible providers, assume embeddings endpoint follows standard pattern
+    // If the endpoint ends with /chat/completions, replace with /embeddings
+    if (embeddingsEndpoint.endsWith('/chat/completions')) {
+      embeddingsEndpoint = embeddingsEndpoint.replace('/chat/completions', '/embeddings')
+    } else if (!embeddingsEndpoint.endsWith('/embeddings')) {
+      // Otherwise append /embeddings if not already present
+      embeddingsEndpoint = `${embeddingsEndpoint.replace(/\/$/, '')}/embeddings`
+    }
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // Add Authorization header if API key is present
+  if (provider.api_key) {
+    headers['Authorization'] = `Bearer ${provider.api_key}`
+  }
+
+  // Determine the embedding model to use
+  // For OpenAI, use text-embedding-3-small by default
+  // For other providers, check metadata for embedding_model or use a default
+  const embeddingModel =
+    provider.metadata?.embedding_model ||
+    (provider.type === 'openai' ? 'text-embedding-3-small' : 'text-embedding-ada-002')
+
+  const response = await fetch(embeddingsEndpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: embeddingModel,
+      input: text,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Embedding API error (${response.status}): ${errorText}`)
+  }
+
+  const data = await response.json()
+  return data.data[0].embedding
 }
 
 /**
