@@ -44,8 +44,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Generate embeddings
+    // Generate embeddings using the user's configured LLM provider
     await processFileEmbeddings(
+      user.id,
       validated.fileId,
       file.package_version_id,
       validated.content

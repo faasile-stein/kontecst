@@ -1,4 +1,5 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { generateEmbedding as generateEmbeddingWithProvider } from './llm-client'
 
 const CHUNK_SIZE = 512 // tokens (approximate)
 const CHUNK_OVERLAP = 50 // tokens
@@ -42,40 +43,17 @@ export function chunkText(text: string, chunkSize = CHUNK_SIZE): EmbeddingChunk[
 }
 
 /**
- * Generate embedding for a piece of text using OpenAI
+ * Generate embedding for a piece of text using the configured LLM provider
  */
-export async function generateEmbedding(text: string): Promise<number[]> {
-  const apiKey = process.env.OPENAI_API_KEY
-
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured')
-  }
-
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
-    }),
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`)
-  }
-
-  const data = await response.json()
-  return data.data[0].embedding
+export async function generateEmbedding(userId: string, text: string): Promise<number[]> {
+  return generateEmbeddingWithProvider(userId, text)
 }
 
 /**
  * Process a file and generate embeddings for all chunks
  */
 export async function processFileEmbeddings(
+  userId: string,
   fileId: string,
   packageVersionId: string,
   content: string
@@ -91,7 +69,7 @@ export async function processFileEmbeddings(
   // Generate embeddings for each chunk
   for (const chunk of chunks) {
     try {
-      const embedding = await generateEmbedding(chunk.content)
+      const embedding = await generateEmbedding(userId, chunk.content)
 
       // Convert embedding to PostgreSQL vector format
       const embeddingString = `[${embedding.join(',')}]`
