@@ -49,7 +49,7 @@ export default function SignUpPage() {
           <div className="rounded-md bg-green-50 p-4">
             <h3 className="text-sm font-medium text-green-800">Check your email</h3>
             <p className="mt-2 text-sm text-green-700">
-              We've sent you a confirmation email. Please check your inbox and click the
+              We&apos;ve sent you a confirmation email. Please check your inbox and click the
               confirmation link to complete your registration.
             </p>
           </div>
