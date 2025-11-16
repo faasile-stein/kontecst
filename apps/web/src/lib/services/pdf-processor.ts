@@ -22,9 +22,20 @@ interface PdfProcessingResult {
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<PdfProcessingResult> {
   try {
-    // Dynamic import for pdf-parse (externalized in webpack config)
-    const pdfParseModule = await import('pdf-parse')
-    const pdfParse = pdfParseModule.default || pdfParseModule
+    // Import pdf-parse - handle both CommonJS and ESM
+    let pdfParse: any
+
+    // Since pdf-parse is externalized as CommonJS in Next.js config,
+    // we need to use require for server-side code
+    if (typeof window === 'undefined') {
+      // Server-side: use require for CommonJS module
+      pdfParse = require('pdf-parse')
+    } else {
+      // Client-side: use dynamic import (though PDF processing should happen server-side)
+      const pdfParseModule = await import('pdf-parse')
+      pdfParse = pdfParseModule.default || pdfParseModule
+    }
+
     const data = await pdfParse(buffer)
 
     return {
